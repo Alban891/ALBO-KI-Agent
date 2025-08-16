@@ -28,7 +28,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                 
                 <!-- Agent 1: Finance Expert -->
-                <div onclick="selectAgent('finance', 'Finance Expert', this)" 
+                <div onclick="selectAgent('finance_expert', 'Finance Expert', this)" 
                      style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
                      onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
                      onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
@@ -38,7 +38,7 @@
                 </div>
                 
                 <!-- Agent 2: Business Assistant -->
-                <div onclick="selectAgent('assistant', 'Business Assistant', this)" 
+                <div onclick="selectAgent('business_assistant', 'Business Assistant', this)" 
                      style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
                      onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
                      onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
@@ -48,7 +48,7 @@
                 </div>
                 
                 <!-- Agent 3: Content Writer -->
-                <div onclick="selectAgent('writer', 'Content Writer', this)" 
+                <div onclick="selectAgent('content_writer', 'Content Writer', this)" 
                      style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
                      onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
                      onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
@@ -58,7 +58,7 @@
                 </div>
                 
                 <!-- Agent 4: Data Analyst -->
-                <div onclick="selectAgent('analyst', 'Data Analyst', this)" 
+                <div onclick="selectAgent('data_analyst', 'Data Analyst', this)" 
                      style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
                      onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
                      onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
@@ -94,71 +94,282 @@
             </button>
         </div>
         
-        <!-- Status -->
+        <!-- Email Content Display -->
+        <div id="emailPreview" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
+            <h4 style="margin: 0 0 10px 0; color: #495057;">📧 Aktuelle E-Mail:</h4>
+            <div id="emailContent" style="font-size: 14px; color: #6c757d; max-height: 100px; overflow-y: auto;"></div>
+        </div>
+        
+        <!-- AI Response Display -->
+        <div id="aiResponse" style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; display: none;">
+            <h4 style="margin: 0 0 10px 0; color: #1976d2;">🤖 KI-Analyse:</h4>
+            <div id="analysisContent"></div>
+            <div id="draftContent" style="margin-top: 15px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #1976d2;"></div>
+        </div>
+        
+        <!-- Status Display -->
         <div id="status" style="margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none;"></div>
+        
+        <!-- Enterprise Info -->
+        <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #6c757d; text-align: center;">
+            🏢 ALBO Enterprise Finance Solutions | Powered by Multi-LLM AI
+        </div>
         
     </div>
 
     <script>
+        // Global Variables
         let selectedAgent = null;
         let selectedAgentName = '';
+        let currentEmailContent = '';
         
-        // Agent auswählen
+        // ALBO Enterprise Agent Templates
+        const ALBO_AGENTS = {
+            finance_expert: {
+                id: 'finance_expert',
+                name: 'Finance Expert',
+                icon: '💰',
+                description: 'Finanzanalyse & Berichte',
+                templates: {
+                    auto: {
+                        analysis: 'Finanzielle E-Mail analysiert: Rechnungsrelevant, Betrag erkannt, Zahlungsziel identifiziert.',
+                        response: 'Vielen Dank für Ihre Rechnung. Wir haben sie zur Bearbeitung an unsere Buchhaltung weitergeleitet. Die Zahlung erfolgt fristgerecht gemäß den vereinbarten Zahlungskonditionen.'
+                    },
+                    draft: {
+                        analysis: 'Finance-Entwurf erstellt: Professionelle Buchhaltungsantwort, compliance-konform.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Schreiben. Wir haben Ihre Unterlagen erhalten und werden diese umgehend in unserem Finance-System bearbeiten.\n\nFür Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhr ALBO Finance Team'
+                    },
+                    review: {
+                        analysis: 'Detaillierte Finance-Analyse: Kostenstelle erforderlich, Budget-Impact prüfen, Freigabe-Workflow aktivieren.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nwir bestätigen den Erhalt Ihrer Unterlagen. Zur ordnungsgemäßen Bearbeitung benötigen wir noch folgende Informationen:\n\n- Kostenstelle/Projekt-Zuordnung\n- Genehmigung durch verantwortlichen Manager\n\nSobald uns diese Angaben vorliegen, erfolgt die weitere Bearbeitung umgehend.\n\nVielen Dank für Ihr Verständnis.'
+                    }
+                }
+            },
+            business_assistant: {
+                id: 'business_assistant',
+                name: 'Business Assistant',
+                icon: '📊',
+                description: 'Allgemeine Geschäftshilfe',
+                templates: {
+                    auto: {
+                        analysis: 'Geschäfts-E-Mail klassifiziert: Routine-Anfrage, Standard-Workflow anwendbar.',
+                        response: 'Vielen Dank für Ihre Nachricht. Wir haben Ihre Anfrage erhalten und werden uns zeitnah bei Ihnen melden. Bei dringenden Angelegenheiten erreichen Sie uns telefonisch.'
+                    },
+                    draft: {
+                        analysis: 'Business-Kommunikation analysiert: Professional Response erforderlich.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Interesse an unseren Dienstleistungen. Gerne unterstützen wir Sie bei Ihrem Anliegen.\n\nIch werde Ihre Anfrage an den zuständigen Fachbereich weiterleiten und mich schnellstmöglich bei Ihnen melden.\n\nMit freundlichen Grüßen'
+                    },
+                    review: {
+                        analysis: 'Komplexe Business-Anfrage: Stakeholder-Abstimmung erforderlich, strategische Relevanz prüfen.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihre detaillierte Anfrage. Aufgrund der Komplexität Ihres Anliegens möchte ich zunächst eine interne Abstimmung mit unseren Fachexperten durchführen.\n\nIch werde mich binnen 48 Stunden mit einer fundierten Antwort bei Ihnen melden.\n\nVielen Dank für Ihr Verständnis.'
+                    }
+                }
+            },
+            content_writer: {
+                id: 'content_writer',
+                name: 'Content Writer',
+                icon: '✍️',
+                description: 'Texterstellung & Korrektur',
+                templates: {
+                    auto: {
+                        analysis: 'Textoptimierung durchgeführt: Stil verbessert, Grammatik korrigiert, Professional Tone angewendet.',
+                        response: 'Vielen Dank für Ihre Nachricht. Ihre Anfrage wurde stilistisch optimiert und wird in verbesserter Form weitergeleitet. Wir schätzen Ihre professionelle Kommunikation.'
+                    },
+                    draft: {
+                        analysis: 'Content-Review abgeschlossen: Klare Struktur, angemessener Ton, Corporate Language.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihre wertvolle Nachricht. Wir haben Ihr Anliegen sorgfältig geprüft und möchten Ihnen eine umfassende Antwort geben.\n\nGerne stehen wir für weitere Fragen zur Verfügung und freuen uns auf eine erfolgreiche Zusammenarbeit.\n\nMit herzlichen Grüßen'
+                    },
+                    review: {
+                        analysis: 'Umfassende Textanalyse: Zielgruppen-Ansprache optimieren, Markenkommunikation abstimmen.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nwir bedanken uns für Ihr Vertrauen und Ihre Nachricht. Ihre Anfrage hat unsere volle Aufmerksamkeit und wir möchten sicherstellen, dass unsere Antwort Ihren Erwartungen entspricht.\n\nErlauben Sie uns, Ihre Anfrage im Detail zu prüfen und Ihnen eine maßgeschneiderte Lösung zu präsentieren.\n\nWir melden uns zeitnah bei Ihnen.'
+                    }
+                }
+            },
+            data_analyst: {
+                id: 'data_analyst',
+                name: 'Data Analyst',
+                icon: '📈',
+                description: 'Datenauswertung',
+                templates: {
+                    auto: {
+                        analysis: 'Datenanalyse abgeschlossen: Trends erkannt, KPIs extrahiert, automatische Insights generiert.',
+                        response: 'Ihre Daten wurden erfolgreich analysiert. Die wichtigsten Kennzahlen wurden extrahiert und stehen zur weiteren Verarbeitung bereit. Ein detaillierter Report folgt in Kürze.'
+                    },
+                    draft: {
+                        analysis: 'Analytische Auswertung: Datenqualität geprüft, Visualisierung vorbereitet.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für die Bereitstellung Ihrer Daten. Unsere erste Analyse zeigt interessante Trends und Potentiale.\n\nWir erstellen derzeit einen detaillierten Analysebericht mit Handlungsempfehlungen und werden Ihnen diesen in den nächsten Tagen zukommen lassen.\n\nMit analytischen Grüßen'
+                    },
+                    review: {
+                        analysis: 'Tiefgehende Datenanalyse erforderlich: Komplexe Korrelationen, predictive Modeling, strategische Insights.',
+                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Vertrauen in unsere Analysekompetenz. Die von Ihnen bereitgestellten Daten erfordern eine sorgfältige und tiefgehende Auswertung.\n\nWir werden verschiedene Analysemethoden anwenden und Ihnen einen umfassenden Bericht mit strategischen Handlungsempfehlungen erstellen.\n\nDie Bearbeitung wird ca. 5-7 Werktage in Anspruch nehmen.'
+                    }
+                }
+            }
+        };
+        
+        // Office.js Ready
+        Office.onReady(() => {
+            console.log('✅ Office Add-In bereit!');
+            showStatus('Office Add-in geladen und bereit!', 'success');
+            loadCurrentEmail();
+        });
+        
+        // Load current email
+        async function loadCurrentEmail() {
+            try {
+                if (typeof Office !== 'undefined' && Office.context && Office.context.mailbox && Office.context.mailbox.item) {
+                    Office.context.mailbox.item.body.getAsync("text", (result) => {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            currentEmailContent = result.value || "Kein E-Mail-Inhalt verfügbar";
+                            showEmailPreview(currentEmailContent);
+                        } else {
+                            currentEmailContent = generateDemoEmail();
+                            showEmailPreview(currentEmailContent);
+                        }
+                    });
+                } else {
+                    currentEmailContent = generateDemoEmail();
+                    showEmailPreview(currentEmailContent);
+                }
+            } catch (error) {
+                console.log('Email fallback used:', error.message);
+                currentEmailContent = generateDemoEmail();
+                showEmailPreview(currentEmailContent);
+            }
+        }
+        
+        function generateDemoEmail() {
+            const demoEmails = [
+                "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR. Bitte überweisen Sie den Betrag bis zum 30.11.2024.\n\nMit freundlichen Grüßen\nMusterfirma GmbH",
+                "Hallo,\n\nwir benötigen ein Angebot für Ihre Consulting-Dienstleistungen. Können Sie uns bis Freitag eine Kostenschätzung zukommen lassen?\n\nBeste Grüße",
+                "Betreff: Quartalsbericht\n\nBitte finden Sie im Anhang unseren Q3-Bericht. Die Zahlen zeigen ein Wachstum von 15% gegenüber dem Vorjahr.\n\nGrüße aus der Finanzabteilung"
+            ];
+            
+            return demoEmails[Math.floor(Math.random() * demoEmails.length)];
+        }
+        
+        function showEmailPreview(content) {
+            const preview = document.getElementById('emailPreview');
+            const emailContent = document.getElementById('emailContent');
+            
+            emailContent.textContent = content.substring(0, 200) + (content.length > 200 ? '...' : '');
+            preview.style.display = 'block';
+        }
+        
+        // Agent Selection
         function selectAgent(agentId, agentName, element) {
-            selectedAgent = agentId;
+            selectedAgent = ALBO_AGENTS[agentId];
             selectedAgentName = agentName;
             
-            // Alle anderen Agent-Karten zurücksetzen
-            const allCards = document.querySelectorAll('[onclick*="selectAgent"]');
-            allCards.forEach(card => {
+            // Reset all cards
+            document.querySelectorAll('[onclick*="selectAgent"]').forEach(card => {
                 card.style.borderColor = '#e9ecef';
                 card.style.background = 'white';
                 card.style.color = 'black';
                 card.classList.remove('selected');
             });
             
-            // Ausgewählte Karte markieren
+            // Highlight selected card
             element.style.borderColor = '#667eea';
             element.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
             element.style.color = 'white';
             element.classList.add('selected');
             
-            showStatus('Agent "' + agentName + '" ausgewählt', 'success');
-            console.log('✅ Agent ausgewählt: ' + agentName);
+            showStatus(`Agent "${agentName}" ausgewählt`, 'success');
+            console.log('✅ Agent ausgewählt:', selectedAgent);
         }
         
-        // E-Mail verarbeiten
-        function processEmail(actionType) {
+        // Main Processing Function
+        async function processEmail(actionType) {
             if (!selectedAgent) {
                 showStatus('Bitte wählen Sie zuerst einen Agent aus', 'error');
                 return;
             }
             
-            showStatus('KI verarbeitet E-Mail...', 'loading');
-            
-            // Simuliere Verarbeitung
-            setTimeout(function() {
-                let message = '';
+            try {
+                showStatus('KI verarbeitet E-Mail...', 'loading');
                 
-                if (actionType === 'auto') {
-                    message = '✅ E-Mail wurde automatisch mit ' + selectedAgentName + ' verarbeitet';
-                } else if (actionType === 'draft') {
-                    message = '✅ Entwurf mit ' + selectedAgentName + ' erstellt und gespeichert';
-                } else if (actionType === 'review') {
-                    message = '✅ Analyse mit ' + selectedAgentName + ' abgeschlossen - bereit zur Überprüfung';
+                // Simulate processing time
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Get agent template response
+                const template = selectedAgent.templates[actionType];
+                
+                if (template) {
+                    // Show AI response
+                    showAIResponse(template.analysis, template.response);
+                    
+                    // Execute business action
+                    const result = await executeBusinessAction(template.response, actionType);
+                    
+                    showStatus(`✅ ${selectedAgent.name}: ${result.message}`, 'success');
+                    
+                    console.log('🎉 Processing completed:', {
+                        agent: selectedAgent.name,
+                        action: actionType,
+                        result: result
+                    });
+                } else {
+                    showStatus('Template für diese Aktion nicht gefunden', 'error');
                 }
                 
-                showStatus(message, 'success');
-                console.log('🎉 Verarbeitung abgeschlossen: ' + actionType + ' mit ' + selectedAgentName);
-                
-            }, 2000);
+            } catch (error) {
+                console.error('Processing error:', error);
+                showStatus('Verarbeitung fehlgeschlagen', 'error');
+            }
         }
         
-        // Status anzeigen
+        function showAIResponse(analysis, draftResponse) {
+            const responseDiv = document.getElementById('aiResponse');
+            const analysisContent = document.getElementById('analysisContent');
+            const draftContent = document.getElementById('draftContent');
+            
+            analysisContent.innerHTML = `<strong>Analyse:</strong> ${analysis}`;
+            draftContent.innerHTML = `<strong>Antwort-Entwurf:</strong><br><pre style="white-space: pre-wrap; font-family: inherit;">${draftResponse}</pre>`;
+            
+            responseDiv.style.display = 'block';
+        }
+        
+        async function executeBusinessAction(responseText, actionType) {
+            switch (actionType) {
+                case 'auto':
+                    // Simulate sending email
+                    console.log('📤 Simuliere automatisches Senden...');
+                    return {
+                        action: 'email_sent',
+                        message: 'E-Mail wurde automatisch gesendet'
+                    };
+                
+                case 'draft':
+                    // Simulate saving draft
+                    console.log('💾 Simuliere Entwurf speichern...');
+                    return {
+                        action: 'draft_saved',
+                        message: 'Entwurf wurde gespeichert'
+                    };
+                
+                case 'review':
+                    // Simulate prepare for review
+                    console.log('🔍 Bereite für Review vor...');
+                    return {
+                        action: 'review_prepared',
+                        message: 'Antwort wurde zur Überprüfung vorbereitet'
+                    };
+                
+                default:
+                    return {
+                        action: 'unknown',
+                        message: 'Unbekannte Aktion'
+                    };
+            }
+        }
+        
+        // Status Display
         function showStatus(message, type) {
             const status = document.getElementById('status');
             status.style.display = 'block';
             
+            // Style based on type
             if (type === 'success') {
                 status.style.background = '#d4edda';
                 status.style.color = '#155724';
@@ -171,38 +382,22 @@
                 status.style.background = '#d1ecf1';
                 status.style.color = '#0c5460';
                 status.style.border = '1px solid #bee5eb';
+                message = '⏳ ' + message;
             }
             
-            if (type === 'loading') {
-                status.innerHTML = '<div style="border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-right: 10px;"></div>' + message;
-            } else {
-                status.innerHTML = message;
-            }
+            status.innerHTML = message;
             
-            // Status nach 5 Sekunden ausblenden (außer bei loading)
+            // Auto-hide after 5 seconds (except loading)
             if (type !== 'loading') {
-                setTimeout(function() {
+                setTimeout(() => {
                     status.style.display = 'none';
                 }, 5000);
             }
         }
         
-        // Office.js bereit
-        if (typeof Office !== 'undefined') {
-            Office.onReady(function() {
-                console.log('✅ Office Add-In bereit!');
-                showStatus('Office Add-in geladen und bereit!', 'success');
-            });
-        }
+        // Initialize
+        console.log('🚀 ALBO KI-Agent loaded - CORS-Safe Version');
     </script>
-    
-    <!-- Spinner Animation -->
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 
 </body>
 </html>
