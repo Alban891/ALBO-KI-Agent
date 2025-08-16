@@ -331,37 +331,109 @@
         }
         
         async function executeBusinessAction(responseText, actionType) {
-            switch (actionType) {
-                case 'auto':
-                    // Simulate sending email
-                    console.log('📤 Simuliere automatisches Senden...');
-                    return {
-                        action: 'email_sent',
-                        message: 'E-Mail wurde automatisch gesendet'
-                    };
-                
-                case 'draft':
-                    // Simulate saving draft
-                    console.log('💾 Simuliere Entwurf speichern...');
-                    return {
-                        action: 'draft_saved',
-                        message: 'Entwurf wurde gespeichert'
-                    };
-                
-                case 'review':
-                    // Simulate prepare for review
-                    console.log('🔍 Bereite für Review vor...');
-                    return {
-                        action: 'review_prepared',
-                        message: 'Antwort wurde zur Überprüfung vorbereitet'
-                    };
-                
-                default:
-                    return {
-                        action: 'unknown',
-                        message: 'Unbekannte Aktion'
-                    };
+            try {
+                switch (actionType) {
+                    case 'auto':
+                        // Echte E-Mail senden
+                        console.log('📤 Sende automatische Antwort...');
+                        return await sendEmailResponse(responseText);
+                    
+                    case 'draft':
+                        // Echter Entwurf speichern
+                        console.log('💾 Speichere Entwurf...');
+                        return await saveToDrafts(responseText);
+                    
+                    case 'review':
+                        // Entwurf für Review vorbereiten
+                        console.log('🔍 Bereite für Review vor...');
+                        return await saveToDrafts(responseText, true);
+                    
+                    default:
+                        return {
+                            action: 'unknown',
+                            message: 'Unbekannte Aktion'
+                        };
+                }
+            } catch (error) {
+                console.error('Business action failed:', error);
+                return {
+                    action: 'error',
+                    message: 'Aktion fehlgeschlagen: ' + error.message
+                };
             }
+        }
+        
+        async function sendEmailResponse(responseText) {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
+                        // Reply to email
+                        Office.context.mailbox.item.reply.setAsync({
+                            htmlBody: responseText.replace(/\n/g, '<br>'),
+                            attachments: []
+                        }, (asyncResult) => {
+                            if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+                                // Send the reply
+                                Office.context.mailbox.item.reply.send();
+                                resolve({
+                                    action: 'email_sent',
+                                    message: 'Antwort wurde automatisch gesendet'
+                                });
+                            } else {
+                                reject(new Error('Antwort konnte nicht erstellt werden'));
+                            }
+                        });
+                    } else {
+                        reject(new Error('Nur bei E-Mails möglich'));
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        async function saveToDrafts(responseText, isReview = false) {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
+                        // Create reply draft
+                        const subject = isReview ? '[REVIEW] Re: ' : 'Re: ';
+                        const htmlBody = `
+                            <div style="font-family: Arial, sans-serif;">
+                                ${isReview ? '<p style="color: #ff6b35; font-weight: bold;">⚠️ REVIEW ERFORDERLICH</p>' : ''}
+                                <div style="white-space: pre-line;">${responseText.replace(/\n/g, '<br>')}</div>
+                                <br><br>
+                                <hr style="border: 1px solid #ddd;">
+                                <p style="font-size: 12px; color: #666;">
+                                    🤖 Generiert von ALBO KI-Agent | 
+                                    Agent: ${selectedAgentName} | 
+                                    ${new Date().toLocaleString('de-DE')}
+                                </p>
+                            </div>
+                        `;
+                        
+                        Office.context.mailbox.item.reply.setAsync({
+                            htmlBody: htmlBody,
+                            attachments: []
+                        }, (asyncResult) => {
+                            if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+                                resolve({
+                                    action: 'draft_saved',
+                                    message: isReview ? 
+                                        'Entwurf für Review gespeichert - bitte prüfen Sie Ihre Entwürfe' : 
+                                        'Entwurf wurde in Ihren Entwürfen gespeichert'
+                                });
+                            } else {
+                                reject(new Error('Entwurf konnte nicht gespeichert werden: ' + asyncResult.error.message));
+                            }
+                        });
+                    } else {
+                        reject(new Error('Nur bei E-Mails möglich'));
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
         }
         
         // Status Display
