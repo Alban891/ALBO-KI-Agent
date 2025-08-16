@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -206,3 +207,213 @@
 
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ALBO KI-Finance-Agent</title>
+    
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+    
+    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2c3e50; font-size: 1.8em; margin: 0;">🤖 ALBO KI-Agent</h1>
+            <p style="color: #7f8c8d; margin: 5px 0 0 0;">Intelligente Finance-Automatisierung</p>
+        </div>
+        
+        <!-- Agent Selector -->
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #2c3e50;">KI-Agent auswählen:</label>
+            
+            <!-- Agent Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                
+                <!-- Agent 1: Finance Expert -->
+                <div onclick="selectAgent('finance', 'Finance Expert', this)" 
+                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
+                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
+                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
+                    <div style="font-size: 2em; margin-bottom: 10px;">💰</div>
+                    <div style="font-weight: 600; margin-bottom: 5px;">Finance Expert</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">Finanzanalyse & Berichte</div>
+                </div>
+                
+                <!-- Agent 2: Business Assistant -->
+                <div onclick="selectAgent('assistant', 'Business Assistant', this)" 
+                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
+                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
+                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
+                    <div style="font-size: 2em; margin-bottom: 10px;">📊</div>
+                    <div style="font-weight: 600; margin-bottom: 5px;">Business Assistant</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">Allgemeine Geschäftshilfe</div>
+                </div>
+                
+                <!-- Agent 3: Content Writer -->
+                <div onclick="selectAgent('writer', 'Content Writer', this)" 
+                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
+                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
+                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
+                    <div style="font-size: 2em; margin-bottom: 10px;">✍️</div>
+                    <div style="font-weight: 600; margin-bottom: 5px;">Content Writer</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">Texterstellung & Korrektur</div>
+                </div>
+                
+                <!-- Agent 4: Data Analyst -->
+                <div onclick="selectAgent('analyst', 'Data Analyst', this)" 
+                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
+                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
+                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
+                    <div style="font-size: 2em; margin-bottom: 10px;">📈</div>
+                    <div style="font-weight: 600; margin-bottom: 5px;">Data Analyst</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">Datenauswertung</div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="margin-top: 25px;">
+            <button onclick="processEmail('auto')" 
+                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #51cf66, #40c057); color: white; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
+                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                ⚡ Vollständig automatisch
+            </button>
+            
+            <button onclick="processEmail('draft')" 
+                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #339af0, #228be6); color: white; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
+                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                📝 Als Entwurf speichern
+            </button>
+            
+            <button onclick="processEmail('review')" 
+                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #ff8cc8, #fd79a8); color: white; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
+                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                🔍 Überdenken & Entwurf
+            </button>
+        </div>
+        
+        <!-- Status -->
+        <div id="status" style="margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none;"></div>
+        
+    </div>
+
+    <script>
+        let selectedAgent = null;
+        let selectedAgentName = '';
+        
+        // Agent auswählen
+        function selectAgent(agentId, agentName, element) {
+            selectedAgent = agentId;
+            selectedAgentName = agentName;
+            
+            // Alle anderen Agent-Karten zurücksetzen
+            const allCards = document.querySelectorAll('[onclick*="selectAgent"]');
+            allCards.forEach(card => {
+                card.style.borderColor = '#e9ecef';
+                card.style.background = 'white';
+                card.style.color = 'black';
+                card.classList.remove('selected');
+            });
+            
+            // Ausgewählte Karte markieren
+            element.style.borderColor = '#667eea';
+            element.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            element.style.color = 'white';
+            element.classList.add('selected');
+            
+            showStatus('Agent "' + agentName + '" ausgewählt', 'success');
+            console.log('✅ Agent ausgewählt: ' + agentName);
+        }
+        
+        // E-Mail verarbeiten
+        function processEmail(actionType) {
+            if (!selectedAgent) {
+                showStatus('Bitte wählen Sie zuerst einen Agent aus', 'error');
+                return;
+            }
+            
+            showStatus('KI verarbeitet E-Mail...', 'loading');
+            
+            // Simuliere Verarbeitung
+            setTimeout(function() {
+                let message = '';
+                
+                if (actionType === 'auto') {
+                    message = '✅ E-Mail wurde automatisch mit ' + selectedAgentName + ' verarbeitet';
+                } else if (actionType === 'draft') {
+                    message = '✅ Entwurf mit ' + selectedAgentName + ' erstellt und gespeichert';
+                } else if (actionType === 'review') {
+                    message = '✅ Analyse mit ' + selectedAgentName + ' abgeschlossen - bereit zur Überprüfung';
+                }
+                
+                showStatus(message, 'success');
+                console.log('🎉 Verarbeitung abgeschlossen: ' + actionType + ' mit ' + selectedAgentName);
+                
+            }, 2000);
+        }
+        
+        // Status anzeigen
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            
+            if (type === 'success') {
+                status.style.background = '#d4edda';
+                status.style.color = '#155724';
+                status.style.border = '1px solid #c3e6cb';
+            } else if (type === 'error') {
+                status.style.background = '#f8d7da';
+                status.style.color = '#721c24';
+                status.style.border = '1px solid #f5c6cb';
+            } else if (type === 'loading') {
+                status.style.background = '#d1ecf1';
+                status.style.color = '#0c5460';
+                status.style.border = '1px solid #bee5eb';
+            }
+            
+            if (type === 'loading') {
+                status.innerHTML = '<div style="border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-right: 10px;"></div>' + message;
+            } else {
+                status.innerHTML = message;
+            }
+            
+            // Status nach 5 Sekunden ausblenden (außer bei loading)
+            if (type !== 'loading') {
+                setTimeout(function() {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Office.js bereit
+        if (typeof Office !== 'undefined') {
+            Office.onReady(function() {
+                console.log('✅ Office Add-In bereit!');
+                showStatus('Office Add-in geladen und bereit!', 'success');
+            });
+        }
+    </script>
+    
+    <!-- Spinner Animation -->
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+</body>
+</html>
+>>>>>>> 736d8de245fdbaaf1cfd4a0d8e2675fa50111347

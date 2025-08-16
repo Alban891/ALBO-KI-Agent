@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" 
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<<<<<<< HEAD
            xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" 
            xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" 
            xsi:type="MailApp">
@@ -40,10 +41,33 @@
   </Requirements>
   
   <!-- Form Settings -->
+=======
+           xsi:type="MailApp">
+
+  <Id>f8437405-f9fc-4292-9c48-3aff00027c5b</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>ALBO Solutions</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  
+  <DisplayName DefaultValue="ALBO Agent"/>
+  <Description DefaultValue="ALBO Finance Agent"/>
+
+  <Hosts>
+    <Host Name="Mailbox" />
+  </Hosts>
+  
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.1" />
+    </Sets>
+  </Requirements>
+  
+>>>>>>> 736d8de245fdbaaf1cfd4a0d8e2675fa50111347
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
         <SourceLocation DefaultValue="https://alban891.github.io/ALBO-KI-Agent/taskpane.html"/>
+<<<<<<< HEAD
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -139,4 +163,13 @@
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
+=======
+        <RequestedHeight>400</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadItem</Permissions>
+  
+>>>>>>> 736d8de245fdbaaf1cfd4a0d8e2675fa50111347
 </OfficeApp>
