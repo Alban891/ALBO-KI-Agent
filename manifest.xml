@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" 
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-<<<<<<< HEAD
            xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" 
            xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" 
            xsi:type="MailApp">
   
   <!-- Deine offizielle Microsoft Azure ID -->
   <Id>f8437405-f9fc-4292-9c48-3aff00027c5b</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.0.1.0</Version> <!-- VERSION ERHÖHT für Update -->
   <ProviderName>ALBO Solutions</ProviderName>
   <DefaultLocale>de-DE</DefaultLocale>
   
@@ -41,33 +40,10 @@
   </Requirements>
   
   <!-- Form Settings -->
-=======
-           xsi:type="MailApp">
-
-  <Id>f8437405-f9fc-4292-9c48-3aff00027c5b</Id>
-  <Version>1.0.0.0</Version>
-  <ProviderName>ALBO Solutions</ProviderName>
-  <DefaultLocale>en-US</DefaultLocale>
-  
-  <DisplayName DefaultValue="ALBO Agent"/>
-  <Description DefaultValue="ALBO Finance Agent"/>
-
-  <Hosts>
-    <Host Name="Mailbox" />
-  </Hosts>
-  
-  <Requirements>
-    <Sets>
-      <Set Name="Mailbox" MinVersion="1.1" />
-    </Sets>
-  </Requirements>
-  
->>>>>>> 736d8de245fdbaaf1cfd4a0d8e2675fa50111347
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
         <SourceLocation DefaultValue="https://alban891.github.io/ALBO-KI-Agent/taskpane.html"/>
-<<<<<<< HEAD
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -82,7 +58,7 @@
     <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Read"/>
   </Rule>
   
-  <!-- Version Overrides für Panel -->
+  <!-- Version Overrides für Panel UND Button -->
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Requirements>
       <bt:Sets DefaultMinVersion="1.3">
@@ -93,11 +69,31 @@
     <Hosts>
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
-          <!-- Button in Message Read -->
+          
+          <!-- ✨ NEU: FLOATING BUTTON in Message Read -->
           <ExtensionPoint xsi:type="MessageReadCommandSurface">
             <OfficeTab id="TabDefault">
-              <Group id="msgReadGroup">
-                <Label resid="GroupLabel"/>
+              <Group id="ALBOGroup">
+                <Label resid="ALBOGroupLabel"/>
+                
+                <!-- 🚀 ALBO FLOATING BUTTON -->
+                <Control xsi:type="Button" id="ALBOFloatingButton">
+                  <Label resid="ALBOButton.Label"/>
+                  <Supertip>
+                    <Title resid="ALBOButton.Title"/>
+                    <Description resid="ALBOButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="ALBOIcon.16x16"/>
+                    <bt:Image size="32" resid="ALBOIcon.32x32"/>
+                    <bt:Image size="80" resid="ALBOIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+                
+                <!-- Bestehender Button bleibt als Fallback -->
                 <Control xsi:type="Button" id="msgReadOpenPaneButton">
                   <Label resid="TaskpaneButton.Label"/>
                   <Supertip>
@@ -117,11 +113,30 @@
             </OfficeTab>
           </ExtensionPoint>
           
-          <!-- Button in Appointment Read -->
+          <!-- ✨ NEU: FLOATING BUTTON in Appointment Read -->
           <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
             <OfficeTab id="TabDefault">
-              <Group id="apptReadGroup">
-                <Label resid="GroupLabel"/>
+              <Group id="ALBOGroupAppt">
+                <Label resid="ALBOGroupLabel"/>
+                
+                <!-- 🚀 ALBO FLOATING BUTTON für Termine -->
+                <Control xsi:type="Button" id="ALBOFloatingButtonAppt">
+                  <Label resid="ALBOButton.Label"/>
+                  <Supertip>
+                    <Title resid="ALBOButton.Title"/>
+                    <Description resid="ALBOButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="ALBOIcon.16x16"/>
+                    <bt:Image size="32" resid="ALBOIcon.32x32"/>
+                    <bt:Image size="80" resid="ALBOIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+                
+                <!-- Bestehender Button -->
                 <Control xsi:type="Button" id="apptReadOpenPaneButton">
                   <Label resid="TaskpaneButton.Label"/>
                   <Supertip>
@@ -140,36 +155,47 @@
               </Group>
             </OfficeTab>
           </ExtensionPoint>
+          
         </DesktopFormFactor>
       </Host>
     </Hosts>
     
-    <!-- Resources -->
+    <!-- Resources - ERWEITERT -->
     <Resources>
       <bt:Images>
+        <!-- Bestehende Icons -->
         <bt:Image id="Icon.16x16" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/icon-16.png"/>
         <bt:Image id="Icon.32x32" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/icon-32.png"/>
         <bt:Image id="Icon.80x80" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/icon-80.png"/>
+        
+        <!-- ✨ NEU: ALBO Floating Button Icons -->
+        <bt:Image id="ALBOIcon.16x16" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/albo-icon-16.png"/>
+        <bt:Image id="ALBOIcon.32x32" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/albo-icon-32.png"/>
+        <bt:Image id="ALBOIcon.80x80" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/assets/albo-icon-80.png"/>
       </bt:Images>
+      
       <bt:Urls>
         <bt:Url id="Taskpane.Url" DefaultValue="https://alban891.github.io/ALBO-KI-Agent/taskpane.html"/>
       </bt:Urls>
+      
       <bt:ShortStrings>
+        <!-- Bestehende Labels -->
         <bt:String id="GroupLabel" DefaultValue="ALBO KI"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Finance Agent"/>
+        
+        <!-- ✨ NEU: ALBO Button Labels -->
+        <bt:String id="ALBOGroupLabel" DefaultValue="🚀 ALBO"/>
+        <bt:String id="ALBOButton.Label" DefaultValue="ALBO KI"/>
+        <bt:String id="ALBOButton.Title" DefaultValue="ALBO Finance Agent"/>
       </bt:ShortStrings>
+      
       <bt:LongStrings>
+        <!-- Bestehende Tooltips -->
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Öffnet den ALBO KI Finance Agent für intelligente Finanzanalysen"/>
+        
+        <!-- ✨ NEU: ALBO Button Tooltip -->
+        <bt:String id="ALBOButton.Tooltip" DefaultValue="🤖 Aktiviert den ALBO KI Finance Agent - Intelligente E-Mail Analyse &amp; Automatisierung"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
-=======
-        <RequestedHeight>400</RequestedHeight>
-      </DesktopSettings>
-    </Form>
-  </FormSettings>
-
-  <Permissions>ReadItem</Permissions>
-  
->>>>>>> 736d8de245fdbaaf1cfd4a0d8e2675fa50111347
 </OfficeApp>
