@@ -8,157 +8,716 @@
     
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    
+    <style>
+        /* ERWEITERTE STYLES - SAFE HYBRID APPROACH */
+        :root {
+            --primary-blue: #0078d4;
+            --success-green: #107c10;
+            --warning-orange: #ff8c00;
+            --error-red: #d13438;
+            --surface: #ffffff;
+            --background: #f3f2f1;
+            --text-primary: #323130;
+            --text-secondary: #605e5c;
+            --border-light: #edebe9;
+            --shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+            --shadow-elevated: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CONTAINER - Erweitert */
+        .main-container {
+            background: var(--surface);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* FLOATING ICON SIMULATION */
+        .floating-icon {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 1000;
+            box-shadow: var(--shadow-elevated);
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0.75rem 1.5rem rgba(1, 120, 212, 0.4);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* HEADER - Modernisiert */
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float-bg 20s infinite linear;
+        }
+
+        @keyframes float-bg {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+        }
+
+        /* STATUS - Erweitert */
+        #status {
+            padding: 12px 20px;
+            margin: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            border-left: 4px solid var(--primary-blue);
+            background: #f0f9ff;
+            color: var(--primary-blue);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        #status.success {
+            background: #f0f9f4;
+            color: var(--success-green);
+            border-color: var(--success-green);
+        }
+
+        #status.error {
+            background: #fef2f2;
+            color: var(--error-red);
+            border-color: var(--error-red);
+        }
+
+        #status.loading {
+            background: #fffbeb;
+            color: var(--warning-orange);
+            border-color: var(--warning-orange);
+        }
+
+        /* EMAIL PREVIEW - Erweitert */
+        #emailPreview {
+            margin: 20px;
+            padding: 20px;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        #emailPreview:hover {
+            box-shadow: var(--shadow-elevated);
+        }
+
+        #emailPreview h4 {
+            margin: 0 0 12px 0;
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        /* AGENTS GRID - Modernisiert */
+        .agents-section {
+            margin: 20px;
+        }
+
+        .agents-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .agents-section h3::before {
+            content: '🤖';
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .agent-button {
+            padding: 15px;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .agent-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+            border-color: var(--primary-blue);
+        }
+
+        .agent-button.selected {
+            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .agent-icon {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .agent-description {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* ACTION BUTTONS - Modernisiert */
+        .actions-section {
+            margin: 20px;
+        }
+
+        .actions-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .actions-section h3::before {
+            content: '⚡';
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .action-button:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .btn-auto {
+            background: linear-gradient(135deg, var(--success-green), #0e6b0e);
+            color: white;
+        }
+
+        .btn-draft {
+            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
+            color: white;
+        }
+
+        .btn-review {
+            background: linear-gradient(135deg, var(--warning-orange), #e67c00);
+            color: white;
+        }
+
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+        /* AI RESPONSE - Erweitert */
+        #aiResponse {
+            margin: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            border-radius: 12px;
+            border: 1px solid #bbdefb;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #aiResponse h4 {
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #bbdefb;
+            display: flex;
+            align-items: center;
+        }
+
+        .response-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .response-section {
+            margin-bottom: 12px;
+        }
+
+        .response-label {
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 4px;
+        }
+
+        /* LOADING ANIMATION */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 350px) {
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f0f2f5;">
-    
-    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+<body>
+    <div class="main-container">
+        
+        <!-- FLOATING ICON SIMULATION -->
+        <div class="floating-icon" title="ALBO KI-Agent aktiv">
+            ALBO
+        </div>
         
         <!-- Header -->
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #333; margin: 0;">🤖 ALBO KI-Agent</h1>
-            <p style="color: #666; margin: 5px 0;">Finance-Automatisierung</p>
+        <div class="header-section">
+            <h1>🚀 ALBO KI-Agent</h1>
+            <p>Finance-Automatisierung Suite</p>
         </div>
         
         <!-- Status -->
-        <div id="status" style="padding: 10px; border-radius: 5px; text-align: center; background: #d4edda; color: #155724; margin-bottom: 20px;">
+        <div id="status">
             Add-In erfolgreich geladen!
         </div>
         
-        <!-- Agents -->
-        <div style="margin-bottom: 20px;">
-            <h3 style="color: #333;">KI-Agent auswählen:</h3>
+        <!-- Email Preview Enhanced -->
+        <div id="emailPreview">
+            <h4>📧 Live E-Mail Analyse</h4>
+            <div id="emailContent" style="font-size: 12px; color: #666;">
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                    <strong>Erkannt:</strong> <span style="color: var(--error-red);">Zahlungserinnerung</span><br>
+                    <strong>Betrag:</strong> 15.750,00 EUR<br>
+                    <strong>Status:</strong> <span style="color: var(--error-red);">Überfällig (4 Tage)</span>
+                </div>
+                <strong>Betreff:</strong> Mahnung - Rechnung Nr. 2024-001<br>
+                <strong>Von:</strong> buchhaltung@musterfirma.de<br><br>
+                <em>Sehr geehrte Damen und Herren, anbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR...</em>
+            </div>
+        </div>
+        
+        <!-- Agents Enhanced -->
+        <div class="agents-section">
+            <h3>Spezialisierte Finance-Agenten</h3>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="selectAgent('finance')" id="btn-finance" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
-                    💰 Finance Expert
+            <div class="agents-grid">
+                <button class="agent-button" onclick="selectAgent('finance')" id="btn-finance">
+                    <span class="agent-icon">💰</span>
+                    <div class="agent-name">Finance Expert</div>
+                    <div class="agent-description">Rechnungsanalyse</div>
                 </button>
-                <button onclick="selectAgent('business')" id="btn-business" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
-                    📊 Business Assistant
+                
+                <button class="agent-button" onclick="selectAgent('business')" id="btn-business">
+                    <span class="agent-icon">📊</span>
+                    <div class="agent-name">Business Assistant</div>
+                    <div class="agent-description">Workflow Management</div>
                 </button>
-                <button onclick="selectAgent('content')" id="btn-content" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
-                    ✍️ Content Writer
+                
+                <button class="agent-button" onclick="selectAgent('content')" id="btn-content">
+                    <span class="agent-icon">✍️</span>
+                    <div class="agent-name">Content Writer</div>
+                    <div class="agent-description">Text Optimierung</div>
                 </button>
-                <button onclick="selectAgent('data')" id="btn-data" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
-                    📈 Data Analyst
+                
+                <button class="agent-button" onclick="selectAgent('data')" id="btn-data">
+                    <span class="agent-icon">📈</span>
+                    <div class="agent-name">Data Analyst</div>
+                    <div class="agent-description">KPI Extraktion</div>
                 </button>
             </div>
         </div>
         
-        <!-- Actions -->
-        <div style="margin-bottom: 20px;">
-            <button onclick="processEmail('auto')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #28a745; color: white; cursor: pointer; font-size: 14px;">
-                ⚡ Vollständig automatisch
+        <!-- Actions Enhanced -->
+        <div class="actions-section">
+            <h3>Intelligente Aktionen</h3>
+            
+            <button onclick="processEmail('auto')" class="action-button btn-auto">
+                <span class="btn-icon">⚡</span>
+                Vollständig automatisch
             </button>
-            <button onclick="processEmail('draft')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #007bff; color: white; cursor: pointer; font-size: 14px;">
-                📝 Als Entwurf speichern
+            
+            <button onclick="processEmail('draft')" class="action-button btn-draft">
+                <span class="btn-icon">📝</span>
+                Als Entwurf speichern
             </button>
-            <button onclick="processEmail('review')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #ffc107; color: black; cursor: pointer; font-size: 14px;">
-                🔍 Überdenken & Entwurf
+            
+            <button onclick="processEmail('review')" class="action-button btn-review">
+                <span class="btn-icon">🔍</span>
+                Überdenken & Entwurf
             </button>
         </div>
         
-        <!-- Email Preview -->
-        <div id="emailPreview" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin: 0 0 10px 0;">📧 Demo E-Mail:</h4>
-            <div style="font-size: 12px; color: #666;">
-                Betreff: Mahnung - Rechnung Nr. 2024-001<br><br>
-                Sehr geehrte Damen und Herren,<br>
-                anbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR...
-            </div>
-        </div>
-        
-        <!-- AI Response -->
-        <div id="aiResponse" style="padding: 15px; background: #e3f2fd; border-radius: 8px; display: none;">
-            <h4 style="margin: 0 0 10px 0;">🤖 KI-Analyse:</h4>
-            <div id="responseContent"></div>
+        <!-- AI Response Enhanced -->
+        <div id="aiResponse">
+            <h4>🤖 KI-Analyse & Verarbeitung</h4>
+            <div id="responseContent" class="response-content"></div>
         </div>
         
     </div>
 
     <script>
         var selectedAgent = '';
+        var currentEmailData = null;
         
-        // Office.js bereit
-        Office.onReady(function() {
-            console.log('Office Add-In geladen');
-            updateStatus('✅ Office Add-In bereit!', 'success');
+        // Office.js bereit - ERWEITERT
+        Office.onReady(function(info) {
+            console.log('🚀 ALBO Finance AI-Agent geladen - Office Host:', info.host);
+            updateStatus('✅ Office Add-In bereit - Verbinde mit E-Mail...', 'success');
+            
+            // Live E-Mail Daten laden
+            loadCurrentEmailData();
+            
+            // Floating Icon Effekt aktivieren
+            initializeFloatingIcon();
+            
+            // Disable Action Buttons initially
+            document.querySelectorAll('.action-button').forEach(btn => {
+                btn.disabled = true;
+            });
         });
         
-        // Agent auswählen
+        // NEUE FUNKTION: Live E-Mail Daten laden
+        function loadCurrentEmailData() {
+            if (Office.context.mailbox && Office.context.mailbox.item) {
+                try {
+                    // Subject laden
+                    Office.context.mailbox.item.subject.getAsync(function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            currentEmailData = {
+                                subject: result.value,
+                                itemId: Office.context.mailbox.item.itemId
+                            };
+                            
+                            // Live Preview aktualisieren
+                            updateEmailPreview(result.value);
+                            console.log('✅ E-Mail Daten geladen:', currentEmailData);
+                        }
+                    });
+                    
+                    // Sender laden
+                    Office.context.mailbox.item.from.getAsync(function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            updateEmailSender(result.value.emailAddress);
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.log('Info: E-Mail Kontext nicht verfügbar (Demo-Modus)');
+                    updateStatus('📧 Demo-Modus aktiv', 'loading');
+                }
+            }
+        }
+        
+        // NEUE FUNKTION: Email Preview aktualisieren
+        function updateEmailPreview(subject) {
+            const emailContent = document.getElementById('emailContent');
+            if (subject && subject.toLowerCase().includes('mahnung') || subject.toLowerCase().includes('rechnung')) {
+                emailContent.innerHTML = `
+                    <div style="background: #fef2f2; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--error-red);">
+                        <strong>🚨 Erkannt:</strong> <span style="color: var(--error-red);">Zahlungserinnerung</span><br>
+                        <strong>Priorität:</strong> <span style="color: var(--error-red);">HOCH</span><br>
+                        <strong>Empfehlung:</strong> Finance Expert Agent verwenden
+                    </div>
+                    <strong>Aktueller Betreff:</strong> ${subject}<br>
+                    <strong>Analyse:</strong> Kritische Finanz-E-Mail erkannt
+                `;
+            } else {
+                emailContent.innerHTML = `
+                    <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--primary-blue);">
+                        <strong>📧 Live E-Mail:</strong> ${subject || 'Demo E-Mail'}<br>
+                        <strong>Status:</strong> Bereit für KI-Analyse
+                    </div>
+                `;
+            }
+        }
+        
+        // NEUE FUNKTION: Email Sender aktualisieren
+        function updateEmailSender(sender) {
+            console.log('📧 Sender erkannt:', sender);
+        }
+        
+        // NEUE FUNKTION: Floating Icon Effekte
+        function initializeFloatingIcon() {
+            const floatingIcon = document.querySelector('.floating-icon');
+            
+            floatingIcon.addEventListener('click', function() {
+                // Icon Klick Effekt
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                updateStatus('🚀 ALBO KI-Agent aktiviert!', 'success');
+            });
+        }
+        
+        // Agent auswählen - ERWEITERT
         function selectAgent(agentType) {
             selectedAgent = agentType;
             
-            // Reset alle Buttons
-            document.getElementById('btn-finance').style.background = 'white';
-            document.getElementById('btn-business').style.background = 'white';
-            document.getElementById('btn-content').style.background = 'white';
-            document.getElementById('btn-data').style.background = 'white';
+            // Reset alle Agent Buttons
+            document.querySelectorAll('.agent-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
             
             // Markiere gewählten Agent
-            document.getElementById('btn-' + agentType).style.background = '#007bff';
-            document.getElementById('btn-' + agentType).style.color = 'white';
+            document.getElementById('btn-' + agentType).classList.add('selected');
             
-            updateStatus('Agent "' + agentType + '" ausgewählt', 'success');
+            // Enable Action Buttons
+            document.querySelectorAll('.action-button').forEach(btn => {
+                btn.disabled = false;
+            });
+            
+            // Agent-spezifische Meldung
+            const agentNames = {
+                'finance': 'Finance Expert - Optimiert für Rechnungsanalyse',
+                'business': 'Business Assistant - Workflow-Spezialist',
+                'content': 'Content Writer - Text-Optimierungs-Experte',
+                'data': 'Data Analyst - KPI & Datenextraktion'
+            };
+            
+            updateStatus('🤖 ' + agentNames[agentType] + ' ausgewählt', 'success');
             console.log('Agent gewählt:', agentType);
         }
         
-        // E-Mail verarbeiten
+        // E-Mail verarbeiten - ERWEITERT
         function processEmail(actionType) {
             if (!selectedAgent) {
-                updateStatus('❌ Bitte wählen Sie zuerst einen Agent aus', 'error');
+                updateStatus('❌ Bitte wählen Sie zuerst einen spezialisierten Agent aus', 'error');
                 return;
             }
             
-            updateStatus('🤖 Agent verarbeitet E-Mail...', 'loading');
+            updateStatus('🤖 KI-Agent verarbeitet E-Mail...', 'loading');
+            
+            // Disable buttons während Verarbeitung
+            document.querySelectorAll('.action-button').forEach(btn => {
+                btn.disabled = true;
+                if (btn.classList.contains('btn-' + actionType)) {
+                    btn.innerHTML += '<span class="loading-spinner"></span>';
+                }
+            });
+            
             console.log('Verarbeite mit Agent:', selectedAgent, 'Action:', actionType);
             
-            // Simulation
+            // Erweiterte KI-Simulation
             setTimeout(function() {
-                showAIResponse(selectedAgent, actionType);
-                updateStatus('✅ Verarbeitung abgeschlossen', 'success');
-            }, 2000);
+                showEnhancedAIResponse(selectedAgent, actionType);
+                updateStatus('✅ Verarbeitung erfolgreich abgeschlossen', 'success');
+                
+                // Re-enable buttons
+                document.querySelectorAll('.action-button').forEach(btn => {
+                    btn.disabled = false;
+                    // Remove loading spinner
+                    const spinner = btn.querySelector('.loading-spinner');
+                    if (spinner) spinner.remove();
+                });
+            }, 2500);
         }
         
-        // AI Response anzeigen
-        function showAIResponse(agent, action) {
-            var responseDiv = document.getElementById('aiResponse');
-            var content = document.getElementById('responseContent');
+        // NEUE FUNKTION: Enhanced AI Response
+        function showEnhancedAIResponse(agent, action) {
+            const responseDiv = document.getElementById('aiResponse');
+            const content = document.getElementById('responseContent');
             
-            var responses = {
-                'finance': 'Finanzielle E-Mail analysiert. Rechnung erkannt, Zahlungsziel identifiziert.',
-                'business': 'Geschäfts-E-Mail klassifiziert. Standard-Workflow anwendbar.',
-                'content': 'Text optimiert. Stil verbessert, Grammatik korrigiert.',
-                'data': 'Datenanalyse abgeschlossen. Trends erkannt, KPIs extrahiert.'
+            const agentResponses = {
+                'finance': {
+                    analysis: 'Rechnung Nr. INV-2024-001 über 15.750,00 EUR analysiert. Zahlungsziel um 4 Tage überschritten.',
+                    recommendation: 'Sofortige Zahlung empfohlen - Mahngebühren vermeiden',
+                    confidence: '94%',
+                    action_taken: 'Zahlung priorisiert, Buchhaltung benachrichtigt'
+                },
+                'business': {
+                    analysis: 'Geschäfts-E-Mail klassifiziert als Mahnwesen. Standard-Workflow anwendbar.',
+                    recommendation: 'Automatische Weiterleitung an Kreditorenbuchhaltung',
+                    confidence: '89%',
+                    action_taken: 'Workflow #MAH-001 ausgelöst'
+                },
+                'content': {
+                    analysis: 'E-Mail-Text analysiert. Höflicher aber bestimmter Ton erkannt.',
+                    recommendation: 'Professionelle Antwort mit Zahlungsbestätigung',
+                    confidence: '91%',
+                    action_taken: 'Standardantwort generiert und optimiert'
+                },
+                'data': {
+                    analysis: 'Finanzdaten extrahiert: Betrag, Rechnungsnummer, Fälligkeitsdatum.',
+                    recommendation: 'Daten an ERP-System übertragen',
+                    confidence: '97%',
+                    action_taken: 'Datensatz in Finanzsystem aktualisiert'
+                }
             };
             
-            content.innerHTML = '<strong>Analyse:</strong> ' + responses[agent] + '<br><br>' +
-                               '<strong>Aktion:</strong> ' + action + '<br><br>' +
-                               '<strong>Antwort:</strong> Vielen Dank für Ihre Nachricht. Wir haben Ihre Anfrage bearbeitet.';
+            const actionTexts = {
+                'auto': 'Antwort automatisch versendet ✅',
+                'draft': 'Entwurf in Drafts gespeichert 📝',
+                'review': 'Zur Überprüfung markiert 🔍'
+            };
+            
+            const response = agentResponses[agent];
+            
+            content.innerHTML = `
+                <div class="response-section">
+                    <div class="response-label">🤖 Agent:</div>
+                    ${selectedAgent.charAt(0).toUpperCase() + selectedAgent.slice(1)} Expert
+                </div>
+                <div class="response-section">
+                    <div class="response-label">📊 Analyse:</div>
+                    ${response.analysis}
+                </div>
+                <div class="response-section">
+                    <div class="response-label">💡 Empfehlung:</div>
+                    ${response.recommendation}
+                </div>
+                <div class="response-section">
+                    <div class="response-label">🎯 Konfidenz:</div>
+                    <span style="color: var(--success-green); font-weight: bold;">${response.confidence}</span>
+                </div>
+                <div class="response-section">
+                    <div class="response-label">⚡ Ausgeführte Aktion:</div>
+                    ${actionTexts[action]}<br>
+                    <small style="color: var(--text-secondary);">${response.action_taken}</small>
+                </div>
+                <div class="response-section" style="margin-top: 15px; padding: 12px; background: rgba(1, 120, 212, 0.1); border-radius: 6px;">
+                    <div class="response-label">✉️ Generierte Antwort:</div>
+                    <em>"Vielen Dank für Ihre Zahlungserinnerung bezüglich Rechnung Nr. INV-2024-001. Die Zahlung wurde veranlasst und wird in den nächsten 2 Werktagen auf Ihrem Konto eingehen. Für Rückfragen stehen wir gerne zur Verfügung."</em>
+                </div>
+            `;
             
             responseDiv.style.display = 'block';
+            responseDiv.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Status Update
+        // Status Update - ERWEITERT
         function updateStatus(message, type) {
-            var statusDiv = document.getElementById('status');
+            const statusDiv = document.getElementById('status');
             
-            if (type === 'success') {
-                statusDiv.style.background = '#d4edda';
-                statusDiv.style.color = '#155724';
-            } else if (type === 'error') {
-                statusDiv.style.background = '#f8d7da';
-                statusDiv.style.color = '#721c24';
-            } else if (type === 'loading') {
-                statusDiv.style.background = '#d1ecf1';
-                statusDiv.style.color = '#0c5460';
+            // Remove all status classes
+            statusDiv.className = 'status';
+            
+            if (type && type !== 'info') {
+                statusDiv.classList.add(type);
             }
             
             statusDiv.innerHTML = message;
-            console.log('Status:', message);
+            console.log('Status Update:', message, type);
         }
         
-        console.log('ALBO KI-Agent Script geladen');
+        console.log('🚀 ALBO KI-Agent Suite - Safe Hybrid Version geladen');
     </script>
 
 </body>
