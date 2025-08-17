@@ -123,7 +123,7 @@
         let selectedAgentName = '';
         let currentEmailContent = '';
         
-        // ALBO Enterprise Agent Templates
+        // ALBO Enterprise Agent Templates (Fallback)
         const ALBO_AGENTS = {
             finance_expert: {
                 id: 'finance_expert',
@@ -208,31 +208,43 @@
         };
         
         // Office.js Ready
-        Office.onReady(() => {
+        Office.onReady(async () => {
             console.log('✅ Office Add-In bereit!');
-            showStatus('Office Add-in geladen und bereit!', 'success');
-            loadCurrentEmail();
+            showStatus('ALBO KI-Agent wird geladen...', 'loading');
+            
+            await loadCurrentEmail();
+            await checkBackendHealth();
+            
+            showStatus('🚀 ALBO KI-Agent bereit für Enterprise Processing!', 'success');
         });
         
         // Load current email
         async function loadCurrentEmail() {
             try {
                 if (typeof Office !== 'undefined' && Office.context && Office.context.mailbox && Office.context.mailbox.item) {
-                    Office.context.mailbox.item.body.getAsync("text", (result) => {
-                        if (result.status === Office.AsyncResultStatus.Succeeded) {
-                            currentEmailContent = result.value || "Kein E-Mail-Inhalt verfügbar";
+                    // Try to get both subject and body
+                    Office.context.mailbox.item.subject.getAsync((subjectResult) => {
+                        Office.context.mailbox.item.body.getAsync("text", (bodyResult) => {
+                            let emailContent = '';
+                            
+                            if (subjectResult.status === Office.AsyncResultStatus.Succeeded) {
+                                emailContent += `Betreff: ${subjectResult.value}\n\n`;
+                            }
+                            
+                            if (bodyResult.status === Office.AsyncResultStatus.Succeeded) {
+                                emailContent += bodyResult.value || '';
+                            }
+                            
+                            currentEmailContent = emailContent || generateDemoEmail();
                             showEmailPreview(currentEmailContent);
-                        } else {
-                            currentEmailContent = generateDemoEmail();
-                            showEmailPreview(currentEmailContent);
-                        }
+                        });
                     });
                 } else {
                     currentEmailContent = generateDemoEmail();
                     showEmailPreview(currentEmailContent);
                 }
             } catch (error) {
-                console.log('Email fallback used:', error.message);
+                console.log('📧 Email loading fallback used:', error.message);
                 currentEmailContent = generateDemoEmail();
                 showEmailPreview(currentEmailContent);
             }
@@ -240,9 +252,9 @@
         
         function generateDemoEmail() {
             const demoEmails = [
-                "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR. Bitte überweisen Sie den Betrag bis zum 30.11.2024.\n\nMit freundlichen Grüßen\nMusterfirma GmbH",
-                "Hallo,\n\nwir benötigen ein Angebot für Ihre Consulting-Dienstleistungen. Können Sie uns bis Freitag eine Kostenschätzung zukommen lassen?\n\nBeste Grüße",
-                "Betreff: Quartalsbericht\n\nBitte finden Sie im Anhang unseren Q3-Bericht. Die Zahlen zeigen ein Wachstum von 15% gegenüber dem Vorjahr.\n\nGrüße aus der Finanzabteilung"
+                "Betreff: Rechnung Nr. 2024-001\n\nSehr geehrte Damen und Herren,\n\nanbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR. Bitte überweisen Sie den Betrag bis zum 30.11.2024.\n\nMit freundlichen Grüßen\nMusterfirma GmbH",
+                "Betreff: Angebot für Consulting\n\nHallo,\n\nwir benötigen ein Angebot für Ihre Consulting-Dienstleistungen. Können Sie uns bis Freitag eine Kostenschätzung zukommen lassen?\n\nBeste Grüße\nMax Mustermann",
+                "Betreff: Q3 Quartalsbericht\n\nLiebes Team,\n\nbitte finden Sie im Anhang unseren Q3-Bericht. Die Zahlen zeigen ein Wachstum von 15% gegenüber dem Vorjahr.\n\nGrüße aus der Finanzabteilung\nAnna Schmidt"
             ];
             
             return demoEmails[Math.floor(Math.random() * demoEmails.length)];
@@ -275,90 +287,283 @@
             element.style.color = 'white';
             element.classList.add('selected');
             
-            showStatus(`Agent "${agentName}" ausgewählt`, 'success');
-            console.log('✅ Agent ausgewählt:', selectedAgent);
+            showStatus(`✅ Agent "${agentName}" ausgewählt`, 'success');
+            console.log('🎯 Agent ausgewählt:', selectedAgent);
         }
         
-        // Main Processing Function
+        // HAUPTFUNKTION: E-Mail mit Backend verarbeiten
         async function processEmail(actionType) {
             if (!selectedAgent) {
-                showStatus('Bitte wählen Sie zuerst einen Agent aus', 'error');
+                showStatus('❌ Bitte wählen Sie zuerst einen Agent aus', 'error');
                 return;
             }
             
             try {
-                showStatus('KI verarbeitet E-Mail...', 'loading');
+                showStatus(`🔗 Verbinde mit ALBO Backend... (${selectedAgent.name})`, 'loading');
                 
-                // Simulate processing time
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Get email content
+                const emailContent = await getCurrentEmail();
                 
-                // Get agent template response
-                const template = selectedAgent.templates[actionType];
+                if (!emailContent || emailContent.trim().length === 0) {
+                    throw new Error('Kein E-Mail-Inhalt verfügbar');
+                }
                 
-                if (template) {
-                    // Show AI response
-                    showAIResponse(template.analysis, template.response);
+                // Debug logs
+                console.log('📧 Email Content:', emailContent.substring(0, 100) + '...');
+                console.log('🤖 Agent:', selectedAgent.id);
+                console.log('⚡ Action:', actionType);
+                
+                // Call ALBO Backend API
+                const response = await fetch('http://localhost:3001/api/tenant/demo_tenant_123/process-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Tenant-ID': 'demo_tenant_123'
+                    },
+                    body: JSON.stringify({
+                        user_email: 'demo@company.com',
+                        email_content: emailContent,
+                        agent_type: selectedAgent.id,
+                        action_type: actionType
+                    })
+                });
+                
+                console.log('🌐 Response Status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Backend Error ${response.status}: ${errorData.error || 'Unknown error'}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Backend Result:', result);
+                
+                if (result.success) {
+                    // Show AI response with enhanced display
+                    showAIResponse(
+                        result.result.analysis,
+                        result.result.draft_response,
+                        result.result.confidence,
+                        result.result.next_actions || [],
+                        result.result
+                    );
                     
                     // Execute business action
-                    const result = await executeBusinessAction(template.response, actionType);
+                    const businessResult = await executeBusinessAction(
+                        result.result.draft_response,
+                        actionType,
+                        result.result
+                    );
                     
-                    showStatus(`✅ ${selectedAgent.name}: ${result.message}`, 'success');
+                    // Success status with confidence
+                    const confidenceEmoji = result.result.confidence > 90 ? '🎯' : 
+                                           result.result.confidence > 75 ? '✅' : '⚠️';
                     
-                    console.log('🎉 Processing completed:', {
-                        agent: selectedAgent.name,
-                        action: actionType,
-                        result: result
-                    });
+                    showStatus(
+                        `${confidenceEmoji} ${selectedAgent.name}: ${businessResult.message} | ` +
+                        `Konfidenz: ${result.result.confidence}% | ` +
+                        `LLM: ${result.result.llm_used || 'Backend'}`,
+                        'success'
+                    );
+                    
                 } else {
-                    showStatus('Template für diese Aktion nicht gefunden', 'error');
+                    throw new Error(result.error || 'Backend processing failed');
                 }
                 
             } catch (error) {
-                console.error('Processing error:', error);
-                showStatus('Verarbeitung fehlgeschlagen', 'error');
+                console.error('❌ Backend Error:', error);
+                
+                // Enhanced error handling
+                let errorMessage = 'Unbekannter Fehler';
+                let useLocalFallback = false;
+                
+                if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Backend nicht erreichbar';
+                    useLocalFallback = true;
+                } else if (error.message.includes('timeout')) {
+                    errorMessage = 'Backend-Timeout';
+                    useLocalFallback = true;
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showStatus(`❌ ${errorMessage}`, 'error');
+                
+                // Local fallback for network issues
+                if (useLocalFallback) {
+                    showStatus('🔄 Wechsle zu lokaler Verarbeitung...', 'loading');
+                    
+                    setTimeout(() => {
+                        const template = selectedAgent.templates[actionType];
+                        if (template) {
+                            showAIResponse(
+                                template.analysis + ' (Lokale Verarbeitung)',
+                                template.response,
+                                75,
+                                ['Lokale Verarbeitung verwendet', 'Backend prüfen'],
+                                { local_fallback: true }
+                            );
+                            showStatus(`✅ ${selectedAgent.name}: Lokale Verarbeitung abgeschlossen`, 'success');
+                        }
+                    }, 1500);
+                }
             }
         }
         
-        function showAIResponse(analysis, draftResponse) {
+        // Enhanced getCurrentEmail
+        async function getCurrentEmail() {
+            return new Promise((resolve) => {
+                if (currentEmailContent && currentEmailContent.trim().length > 0) {
+                    resolve(currentEmailContent);
+                } else {
+                    resolve(generateDemoEmail());
+                }
+            });
+        }
+        
+        // Enhanced AI Response Display
+        function showAIResponse(analysis, draftResponse, confidence, nextActions, metadata = {}) {
             const responseDiv = document.getElementById('aiResponse');
             const analysisContent = document.getElementById('analysisContent');
             const draftContent = document.getElementById('draftContent');
             
-            analysisContent.innerHTML = `<strong>Analyse:</strong> ${analysis}`;
-            draftContent.innerHTML = `<strong>Antwort-Entwurf:</strong><br><pre style="white-space: pre-wrap; font-family: inherit;">${draftResponse}</pre>`;
+            // Build enhanced analysis content
+            let analysisHTML = `
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <strong>🔍 KI-Analyse:</strong>
+                        <div style="margin-top: 8px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #0066cc;">
+                            ${analysis}
+                        </div>
+                    </div>
+            `;
+            
+            // Confidence Score with visual indicator
+            if (confidence) {
+                const confidenceColor = confidence > 90 ? '#28a745' : confidence > 75 ? '#ffc107' : '#dc3545';
+                const confidenceIcon = confidence > 90 ? '🎯' : confidence > 75 ? '✅' : '⚠️';
+                
+                analysisHTML += `
+                    <div style="text-align: center;">
+                        <div style="background: ${confidenceColor}; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; margin-bottom: 5px;">
+                            ${confidenceIcon} ${confidence}%
+                        </div>
+                        <small style="color: #6c757d;">Konfidenz</small>
+                    </div>
+                `;
+            }
+            
+            analysisHTML += '</div>';
+            
+            // Metadata display
+            if (metadata.llm_used) {
+                analysisHTML += `
+                    <div style="margin-bottom: 10px; font-size: 12px; color: #6c757d;">
+                        🤖 <strong>LLM:</strong> ${metadata.llm_used} | 
+                        ⏱️ <strong>Zeit:</strong> ${metadata.processing_time || 'N/A'}ms
+                        ${metadata.local_fallback ? ' | 🔄 <strong>Lokaler Modus</strong>' : ''}
+                    </div>
+                `;
+            }
+            
+            // Next Actions
+            if (nextActions && nextActions.length > 0) {
+                analysisHTML += `
+                    <div style="margin-bottom: 15px;">
+                        <strong>📋 Empfohlene nächste Schritte:</strong>
+                        <ul style="margin: 8px 0; padding-left: 20px; background: #e8f4fd; padding: 10px; border-radius: 6px;">
+                            ${nextActions.map(action => `<li style="margin: 4px 0;">${action}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            analysisContent.innerHTML = analysisHTML;
+            
+            // Enhanced draft content with copy button
+            const timestamp = new Date().toLocaleString('de-DE');
+            draftContent.innerHTML = `
+                <div style="border-left: 4px solid #0066cc; padding-left: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>📝 Antwort-Entwurf:</strong>
+                        <button onclick="copyToClipboard('${draftResponse.replace(/'/g, "\\'")}', this)" 
+                                style="background: #0066cc; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                            📋 Kopieren
+                        </button>
+                    </div>
+                    <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 6px; white-space: pre-wrap; font-family: inherit; border: 1px solid #dee2e6; line-height: 1.5;">
+${draftResponse}
+
+---
+🤖 Generiert von ALBO KI-Agent | ${selectedAgentName} | ${timestamp}
+                    </div>
+                </div>
+            `;
             
             responseDiv.style.display = 'block';
+            responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         
-        async function executeBusinessAction(responseText, actionType) {
+        // Copy to clipboard utility
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✅ Kopiert!';
+                button.style.background = '#28a745';
+                setTimeout(() => {
+                    button.textContent = '📋 Kopieren';
+                    button.style.background = '#0066cc';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                button.textContent = '❌ Fehler';
+                button.style.background = '#dc3545';
+                setTimeout(() => {
+                    button.textContent = '📋 Kopieren';
+                    button.style.background = '#0066cc';
+                }, 2000);
+            });
+        }
+        
+        // Enhanced Business Action Execution
+        async function executeBusinessAction(responseText, actionType, aiResult) {
             try {
+                const timestamp = new Date().toLocaleString('de-DE');
+                const metadata = `
+---
+🤖 ALBO KI-Agent | ${selectedAgentName}
+📊 Konfidenz: ${aiResult.confidence || 'N/A'}%
+🤖 LLM: ${aiResult.llm_used || 'N/A'}
+⏰ ${timestamp}
+                `;
+                
+                const fullResponse = responseText + metadata;
+                
                 switch (actionType) {
                     case 'auto':
-                        // Echte E-Mail senden
-                        console.log('📤 Sende automatische Antwort...');
-                        return await sendEmailResponse(responseText);
+                        console.log('📤 Automatische Antwort wird vorbereitet...');
+                        return await sendEmailResponse(fullResponse);
                     
                     case 'draft':
-                        // Echter Entwurf speichern
-                        console.log('💾 Speichere Entwurf...');
-                        return await saveToDrafts(responseText);
+                        console.log('💾 Speichere als Entwurf...');
+                        return await saveToDrafts(fullResponse, false);
                     
                     case 'review':
-                        // Entwurf für Review vorbereiten
                         console.log('🔍 Bereite für Review vor...');
-                        return await saveToDrafts(responseText, true);
+                        const reviewHeader = `⚠️ REVIEW ERFORDERLICH
+Konfidenz: ${aiResult.confidence || 'N/A'}%
+Nächste Schritte: ${(aiResult.next_actions || []).join(', ')}
+
+`;
+                        return await saveToDrafts(reviewHeader + fullResponse, true);
                     
                     default:
-                        return {
-                            action: 'unknown',
-                            message: 'Unbekannte Aktion'
-                        };
+                        throw new Error(`Unbekannte Aktion: ${actionType}`);
                 }
             } catch (error) {
-                console.error('Business action failed:', error);
+                console.error('❌ Business action failed:', error);
                 return {
                     action: 'error',
-                    message: 'Aktion fehlgeschlagen: ' + error.message
+                    message: `Aktion fehlgeschlagen: ${error.message}`
                 };
             }
         }
@@ -366,25 +571,30 @@
         async function sendEmailResponse(responseText) {
             return new Promise((resolve, reject) => {
                 try {
-                    if (Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
-                        // Reply to email
+                    if (Office.context && Office.context.mailbox && Office.context.mailbox.item &&
+                        Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
+                        
+                        const htmlBody = responseText.replace(/\n/g, '<br>').replace(/\n\n/g, '<br><br>');
+                        
                         Office.context.mailbox.item.reply.setAsync({
-                            htmlBody: responseText.replace(/\n/g, '<br>'),
+                            htmlBody: htmlBody,
                             attachments: []
                         }, (asyncResult) => {
                             if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-                                // Send the reply
-                                Office.context.mailbox.item.reply.send();
                                 resolve({
-                                    action: 'email_sent',
-                                    message: 'Antwort wurde automatisch gesendet'
+                                    action: 'reply_prepared',
+                                    message: 'Antwort wurde vorbereitet - bitte manuell senden'
                                 });
                             } else {
-                                reject(new Error('Antwort konnte nicht erstellt werden'));
+                                reject(new Error(`Antwort-Erstellung fehlgeschlagen: ${asyncResult.error?.message || 'Unbekannter Fehler'}`));
                             }
                         });
+                        
                     } else {
-                        reject(new Error('Nur bei E-Mails möglich'));
+                        resolve({
+                            action: 'demo_mode',
+                            message: 'Demo-Modus: Antwort wurde vorbereitet'
+                        });
                     }
                 } catch (error) {
                     reject(error);
@@ -395,20 +605,13 @@
         async function saveToDrafts(responseText, isReview = false) {
             return new Promise((resolve, reject) => {
                 try {
-                    if (Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
-                        // Create reply draft
-                        const subject = isReview ? '[REVIEW] Re: ' : 'Re: ';
+                    if (Office.context && Office.context.mailbox && Office.context.mailbox.item &&
+                        Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
+                        
                         const htmlBody = `
-                            <div style="font-family: Arial, sans-serif;">
-                                ${isReview ? '<p style="color: #ff6b35; font-weight: bold;">⚠️ REVIEW ERFORDERLICH</p>' : ''}
+                            <div style="font-family: Calibri, Arial, sans-serif; font-size: 11pt;">
+                                ${isReview ? '<div style="color: #ff6b35; font-weight: bold; margin-bottom: 15px;">⚠️ REVIEW ERFORDERLICH - Bitte prüfen vor dem Senden</div>' : ''}
                                 <div style="white-space: pre-line;">${responseText.replace(/\n/g, '<br>')}</div>
-                                <br><br>
-                                <hr style="border: 1px solid #ddd;">
-                                <p style="font-size: 12px; color: #666;">
-                                    🤖 Generiert von ALBO KI-Agent | 
-                                    Agent: ${selectedAgentName} | 
-                                    ${new Date().toLocaleString('de-DE')}
-                                </p>
                             </div>
                         `;
                         
@@ -420,20 +623,53 @@
                                 resolve({
                                     action: 'draft_saved',
                                     message: isReview ? 
-                                        'Entwurf für Review gespeichert - bitte prüfen Sie Ihre Entwürfe' : 
-                                        'Entwurf wurde in Ihren Entwürfen gespeichert'
+                                        'Review-Entwurf gespeichert - bitte in Entwürfen prüfen' : 
+                                        'Entwurf wurde in Outlook gespeichert'
                                 });
                             } else {
-                                reject(new Error('Entwurf konnte nicht gespeichert werden: ' + asyncResult.error.message));
+                                reject(new Error(`Entwurf-Speicherung fehlgeschlagen: ${asyncResult.error?.message || 'Unbekannter Fehler'}`));
                             }
                         });
+                        
                     } else {
-                        reject(new Error('Nur bei E-Mails möglich'));
+                        resolve({
+                            action: 'demo_mode',
+                            message: isReview ? 'Demo: Review-Entwurf erstellt' : 'Demo: Entwurf erstellt'
+                        });
                     }
                 } catch (error) {
                     reject(error);
                 }
             });
+        }
+        
+        // Backend Health Check
+        async function checkBackendHealth() {
+            try {
+                showStatus('🔍 Prüfe Backend-Verbindung...', 'loading');
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch('http://localhost:3001/api/health', {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const result = await response.json();
+                
+                if (result.status === 'healthy') {
+                    console.log('✅ Backend Health Check:', result);
+                    return true;
+                } else {
+                    throw new Error('Backend unhealthy');
+                }
+            } catch (error) {
+                console.log('❌ Backend health check failed:', error);
+                return false;
+            }
         }
         
         // Status Display
@@ -467,8 +703,8 @@
             }
         }
         
-        // Initialize
-        console.log('🚀 ALBO KI-Agent loaded - CORS-Safe Version');
+        // Initialize logging
+        console.log('🚀 ALBO KI-Agent Enterprise loaded - Backend Integration ready!');
     </script>
 
 </body>
