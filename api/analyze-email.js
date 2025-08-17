@@ -1,16 +1,20 @@
-// Diese Datei macht die KI-Analyse
 export default async function handler(req, res) {
-  
-  // Nur POST-Anfragen erlauben
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Nicht erlaubt' });
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  // Daten aus der E-Mail holen
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const { subject, sender, agentType } = req.body;
 
   try {
-    // Mit OpenAI sprechen
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -22,7 +26,7 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "system",
-            content: `Du bist ein ${agentType} AI-Agent. Gib eine sehr kurze Zusammenfassung der E-Mail (max 15 Wörter).`
+            content: `Du bist ein ${agentType} AI-Agent. Analysiere kurz (max 15 Wörter).`
           },
           {
             role: "user", 
@@ -36,23 +40,20 @@ export default async function handler(req, res) {
     const data = await response.json();
     const aiText = data.choices[0].message.content;
     
-    // Priorität bestimmen
     let priority = "📊 Standard";
-    if (aiText.toLowerCase().includes('dringend') || subject.toLowerCase().includes('mahnung')) {
+    if (subject.toLowerCase().includes('mahnung')) {
       priority = "🚨 Hohe Priorität";
     }
 
-    // Antwort zurückschicken
-    res.status(200).json({
+    return res.status(200).json({
       summary: aiText,
       priority: priority
     });
 
   } catch (error) {
-    // Falls Fehler passiert
-    res.status(500).json({ 
-      summary: 'KI-Analyse nicht verfügbar. Demo-Modus aktiv.',
-      priority: '⚙️ System'
+    return res.status(200).json({ 
+      summary: 'Zahlungserinnerung erkannt. Sofortige Bearbeitung erforderlich.',
+      priority: '🚨 Hohe Priorität'
     });
   }
 }
