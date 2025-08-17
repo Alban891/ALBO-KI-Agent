@@ -10,340 +10,155 @@
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 </head>
 
-<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f0f2f5;">
     
-    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         
         <!-- Header -->
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2c3e50; font-size: 1.8em; margin: 0;">🤖 ALBO KI-Agent</h1>
-            <p style="color: #7f8c8d; margin: 5px 0 0 0;">Intelligente Finance-Automatisierung</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: #333; margin: 0;">🤖 ALBO KI-Agent</h1>
+            <p style="color: #666; margin: 5px 0;">Finance-Automatisierung</p>
         </div>
         
-        <!-- Agent Selector -->
-        <div style="margin-bottom: 25px;">
-            <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #2c3e50;">KI-Agent auswählen:</label>
+        <!-- Status -->
+        <div id="status" style="padding: 10px; border-radius: 5px; text-align: center; background: #d4edda; color: #155724; margin-bottom: 20px;">
+            Add-In erfolgreich geladen!
+        </div>
+        
+        <!-- Agents -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: #333;">KI-Agent auswählen:</h3>
             
-            <!-- Agent Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                
-                <!-- Agent 1: Finance Expert -->
-                <div onclick="selectAgent('finance_expert', 'Finance Expert', this)" 
-                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
-                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
-                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
-                    <div style="font-size: 2em; margin-bottom: 10px;">💰</div>
-                    <div style="font-weight: 600; margin-bottom: 5px;">Finance Expert</div>
-                    <div style="font-size: 0.8em; opacity: 0.8;">Finanzanalyse & Berichte</div>
-                </div>
-                
-                <!-- Agent 2: Business Assistant -->
-                <div onclick="selectAgent('business_assistant', 'Business Assistant', this)" 
-                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
-                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
-                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
-                    <div style="font-size: 2em; margin-bottom: 10px;">📊</div>
-                    <div style="font-weight: 600; margin-bottom: 5px;">Business Assistant</div>
-                    <div style="font-size: 0.8em; opacity: 0.8;">Allgemeine Geschäftshilfe</div>
-                </div>
-                
-                <!-- Agent 3: Content Writer -->
-                <div onclick="selectAgent('content_writer', 'Content Writer', this)" 
-                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
-                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
-                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
-                    <div style="font-size: 2em; margin-bottom: 10px;">✍️</div>
-                    <div style="font-weight: 600; margin-bottom: 5px;">Content Writer</div>
-                    <div style="font-size: 0.8em; opacity: 0.8;">Texterstellung & Korrektur</div>
-                </div>
-                
-                <!-- Agent 4: Data Analyst -->
-                <div onclick="selectAgent('data_analyst', 'Data Analyst', this)" 
-                     style="border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.3s ease;"
-                     onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9ff';"
-                     onmouseout="if(!this.classList.contains('selected')) { this.style.borderColor='#e9ecef'; this.style.background='white'; }">
-                    <div style="font-size: 2em; margin-bottom: 10px;">📈</div>
-                    <div style="font-weight: 600; margin-bottom: 5px;">Data Analyst</div>
-                    <div style="font-size: 0.8em; opacity: 0.8;">Datenauswertung</div>
-                </div>
-                
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="selectAgent('finance')" id="btn-finance" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
+                    💰 Finance Expert
+                </button>
+                <button onclick="selectAgent('business')" id="btn-business" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
+                    📊 Business Assistant
+                </button>
+                <button onclick="selectAgent('content')" id="btn-content" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
+                    ✍️ Content Writer
+                </button>
+                <button onclick="selectAgent('data')" id="btn-data" style="padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer;">
+                    📈 Data Analyst
+                </button>
             </div>
         </div>
         
-        <!-- Action Buttons -->
-        <div style="margin-top: 25px;">
-            <button onclick="processEmail('auto')" 
-                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #51cf66, #40c057); color: white; transition: all 0.3s ease;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
-                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+        <!-- Actions -->
+        <div style="margin-bottom: 20px;">
+            <button onclick="processEmail('auto')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #28a745; color: white; cursor: pointer; font-size: 14px;">
                 ⚡ Vollständig automatisch
             </button>
-            
-            <button onclick="processEmail('draft')" 
-                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #339af0, #228be6); color: white; transition: all 0.3s ease;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
-                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+            <button onclick="processEmail('draft')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #007bff; color: white; cursor: pointer; font-size: 14px;">
                 📝 Als Entwurf speichern
             </button>
-            
-            <button onclick="processEmail('review')" 
-                    style="width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #ff8cc8, #fd79a8); color: white; transition: all 0.3s ease;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
-                    onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+            <button onclick="processEmail('review')" style="width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; background: #ffc107; color: black; cursor: pointer; font-size: 14px;">
                 🔍 Überdenken & Entwurf
             </button>
         </div>
         
-        <!-- Email Content Display -->
-        <div id="emailPreview" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
-            <h4 style="margin: 0 0 10px 0; color: #495057;">📧 Aktuelle E-Mail:</h4>
-            <div id="emailContent" style="font-size: 14px; color: #6c757d; max-height: 100px; overflow-y: auto;"></div>
+        <!-- Email Preview -->
+        <div id="emailPreview" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+            <h4 style="margin: 0 0 10px 0;">📧 Demo E-Mail:</h4>
+            <div style="font-size: 12px; color: #666;">
+                Betreff: Mahnung - Rechnung Nr. 2024-001<br><br>
+                Sehr geehrte Damen und Herren,<br>
+                anbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR...
+            </div>
         </div>
         
-        <!-- AI Response Display -->
-        <div id="aiResponse" style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; display: none;">
-            <h4 style="margin: 0 0 10px 0; color: #1976d2;">🤖 KI-Analyse:</h4>
-            <div id="analysisContent"></div>
-            <div id="draftContent" style="margin-top: 15px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #1976d2;"></div>
-        </div>
-        
-        <!-- Status Display -->
-        <div id="status" style="margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none;"></div>
-        
-        <!-- Enterprise Info -->
-        <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #6c757d; text-align: center;">
-            🏢 ALBO Enterprise Finance Solutions | Powered by Multi-LLM AI
+        <!-- AI Response -->
+        <div id="aiResponse" style="padding: 15px; background: #e3f2fd; border-radius: 8px; display: none;">
+            <h4 style="margin: 0 0 10px 0;">🤖 KI-Analyse:</h4>
+            <div id="responseContent"></div>
         </div>
         
     </div>
 
     <script>
-        // Global Variables
-        let selectedAgent = null;
-        let selectedAgentName = '';
-        let currentEmailContent = '';
+        var selectedAgent = '';
         
-        // ALBO Enterprise Agent Templates
-        const ALBO_AGENTS = {
-            finance_expert: {
-                id: 'finance_expert',
-                name: 'Finance Expert',
-                icon: '💰',
-                description: 'Finanzanalyse & Berichte',
-                templates: {
-                    auto: {
-                        analysis: 'Finanzielle E-Mail analysiert: Rechnungsrelevant, Betrag erkannt, Zahlungsziel identifiziert.',
-                        response: 'Vielen Dank für Ihre Rechnung. Wir haben sie zur Bearbeitung an unsere Buchhaltung weitergeleitet. Die Zahlung erfolgt fristgerecht gemäß den vereinbarten Zahlungskonditionen.'
-                    },
-                    draft: {
-                        analysis: 'Finance-Entwurf erstellt: Professionelle Buchhaltungsantwort, compliance-konform.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Schreiben. Wir haben Ihre Unterlagen erhalten und werden diese umgehend in unserem Finance-System bearbeiten.\n\nFür Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhr ALBO Finance Team'
-                    },
-                    review: {
-                        analysis: 'Detaillierte Finance-Analyse: Kostenstelle erforderlich, Budget-Impact prüfen, Freigabe-Workflow aktivieren.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nwir bestätigen den Erhalt Ihrer Unterlagen. Zur ordnungsgemäßen Bearbeitung benötigen wir noch folgende Informationen:\n\n- Kostenstelle/Projekt-Zuordnung\n- Genehmigung durch verantwortlichen Manager\n\nSobald uns diese Angaben vorliegen, erfolgt die weitere Bearbeitung umgehend.\n\nVielen Dank für Ihr Verständnis.'
-                    }
-                }
-            },
-            business_assistant: {
-                id: 'business_assistant',
-                name: 'Business Assistant',
-                icon: '📊',
-                description: 'Allgemeine Geschäftshilfe',
-                templates: {
-                    auto: {
-                        analysis: 'Geschäfts-E-Mail klassifiziert: Routine-Anfrage, Standard-Workflow anwendbar.',
-                        response: 'Vielen Dank für Ihre Nachricht. Wir haben Ihre Anfrage erhalten und werden uns zeitnah bei Ihnen melden. Bei dringenden Angelegenheiten erreichen Sie uns telefonisch.'
-                    },
-                    draft: {
-                        analysis: 'Business-Kommunikation analysiert: Professional Response erforderlich.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Interesse an unseren Dienstleistungen. Gerne unterstützen wir Sie bei Ihrem Anliegen.\n\nIch werde Ihre Anfrage an den zuständigen Fachbereich weiterleiten und mich schnellstmöglich bei Ihnen melden.\n\nMit freundlichen Grüßen'
-                    },
-                    review: {
-                        analysis: 'Komplexe Business-Anfrage: Stakeholder-Abstimmung erforderlich, strategische Relevanz prüfen.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihre detaillierte Anfrage. Aufgrund der Komplexität Ihres Anliegens möchte ich zunächst eine interne Abstimmung mit unseren Fachexperten durchführen.\n\nIch werde mich binnen 48 Stunden mit einer fundierten Antwort bei Ihnen melden.\n\nVielen Dank für Ihr Verständnis.'
-                    }
-                }
-            },
-            content_writer: {
-                id: 'content_writer',
-                name: 'Content Writer',
-                icon: '✍️',
-                description: 'Texterstellung & Korrektur',
-                templates: {
-                    auto: {
-                        analysis: 'Textoptimierung durchgeführt: Stil verbessert, Grammatik korrigiert, Professional Tone angewendet.',
-                        response: 'Vielen Dank für Ihre Nachricht. Ihre Anfrage wurde stilistisch optimiert und wird in verbesserter Form weitergeleitet. Wir schätzen Ihre professionelle Kommunikation.'
-                    },
-                    draft: {
-                        analysis: 'Content-Review abgeschlossen: Klare Struktur, angemessener Ton, Corporate Language.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihre wertvolle Nachricht. Wir haben Ihr Anliegen sorgfältig geprüft und möchten Ihnen eine umfassende Antwort geben.\n\nGerne stehen wir für weitere Fragen zur Verfügung und freuen uns auf eine erfolgreiche Zusammenarbeit.\n\nMit herzlichen Grüßen'
-                    },
-                    review: {
-                        analysis: 'Umfassende Textanalyse: Zielgruppen-Ansprache optimieren, Markenkommunikation abstimmen.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nwir bedanken uns für Ihr Vertrauen und Ihre Nachricht. Ihre Anfrage hat unsere volle Aufmerksamkeit und wir möchten sicherstellen, dass unsere Antwort Ihren Erwartungen entspricht.\n\nErlauben Sie uns, Ihre Anfrage im Detail zu prüfen und Ihnen eine maßgeschneiderte Lösung zu präsentieren.\n\nWir melden uns zeitnah bei Ihnen.'
-                    }
-                }
-            },
-            data_analyst: {
-                id: 'data_analyst',
-                name: 'Data Analyst',
-                icon: '📈',
-                description: 'Datenauswertung',
-                templates: {
-                    auto: {
-                        analysis: 'Datenanalyse abgeschlossen: Trends erkannt, KPIs extrahiert, automatische Insights generiert.',
-                        response: 'Ihre Daten wurden erfolgreich analysiert. Die wichtigsten Kennzahlen wurden extrahiert und stehen zur weiteren Verarbeitung bereit. Ein detaillierter Report folgt in Kürze.'
-                    },
-                    draft: {
-                        analysis: 'Analytische Auswertung: Datenqualität geprüft, Visualisierung vorbereitet.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für die Bereitstellung Ihrer Daten. Unsere erste Analyse zeigt interessante Trends und Potentiale.\n\nWir erstellen derzeit einen detaillierten Analysebericht mit Handlungsempfehlungen und werden Ihnen diesen in den nächsten Tagen zukommen lassen.\n\nMit analytischen Grüßen'
-                    },
-                    review: {
-                        analysis: 'Tiefgehende Datenanalyse erforderlich: Komplexe Korrelationen, predictive Modeling, strategische Insights.',
-                        response: 'Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihr Vertrauen in unsere Analysekompetenz. Die von Ihnen bereitgestellten Daten erfordern eine sorgfältige und tiefgehende Auswertung.\n\nWir werden verschiedene Analysemethoden anwenden und Ihnen einen umfassenden Bericht mit strategischen Handlungsempfehlungen erstellen.\n\nDie Bearbeitung wird ca. 5-7 Werktage in Anspruch nehmen.'
-                    }
-                }
-            }
-        };
-        
-        // Office.js Ready - ULTRA SAFE VERSION
+        // Office.js bereit
         Office.onReady(function() {
-            console.log('✅ Office Add-In bereit!');
-            showStatus('ALBO KI-Agent geladen!', 'success');
-            loadCurrentEmail();
+            console.log('Office Add-In geladen');
+            updateStatus('✅ Office Add-In bereit!', 'success');
         });
         
-        // Load current email - SAFE VERSION
-        function loadCurrentEmail() {
-            try {
-                currentEmailContent = generateDemoEmail();
-                showEmailPreview(currentEmailContent);
-                console.log('📧 Demo E-Mail geladen');
-            } catch (error) {
-                console.log('📧 Email loading error:', error);
-                currentEmailContent = 'Demo E-Mail konnte nicht geladen werden.';
-                showEmailPreview(currentEmailContent);
-            }
+        // Agent auswählen
+        function selectAgent(agentType) {
+            selectedAgent = agentType;
+            
+            // Reset alle Buttons
+            document.getElementById('btn-finance').style.background = 'white';
+            document.getElementById('btn-business').style.background = 'white';
+            document.getElementById('btn-content').style.background = 'white';
+            document.getElementById('btn-data').style.background = 'white';
+            
+            // Markiere gewählten Agent
+            document.getElementById('btn-' + agentType).style.background = '#007bff';
+            document.getElementById('btn-' + agentType).style.color = 'white';
+            
+            updateStatus('Agent "' + agentType + '" ausgewählt', 'success');
+            console.log('Agent gewählt:', agentType);
         }
         
-        function generateDemoEmail() {
-            var demoEmails = [
-                "Betreff: Mahnung - Rechnung Nr. 2024-001\n\nSehr geehrte Damen und Herren,\n\nanbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR. Bitte überweisen Sie den Betrag bis zum 30.11.2024.\n\nMit freundlichen Grüßen\nMusterfirma GmbH",
-                "Betreff: Angebot für Consulting\n\nHallo,\n\nwir benötigen ein Angebot für Ihre Consulting-Dienstleistungen. Können Sie uns bis Freitag eine Kostenschätzung zukommen lassen?\n\nBeste Grüße\nMax Mustermann",
-                "Betreff: Q3 Quartalsbericht\n\nLiebes Team,\n\nbitte finden Sie im Anhang unseren Q3-Bericht. Die Zahlen zeigen ein Wachstum von 15% gegenüber dem Vorjahr.\n\nGrüße aus der Finanzabteilung\nAnna Schmidt"
-            ];
-            
-            return demoEmails[Math.floor(Math.random() * demoEmails.length)];
-        }
-        
-        function showEmailPreview(content) {
-            var preview = document.getElementById('emailPreview');
-            var emailContent = document.getElementById('emailContent');
-            
-            if (preview && emailContent) {
-                emailContent.textContent = content.substring(0, 200) + (content.length > 200 ? '...' : '');
-                preview.style.display = 'block';
-            }
-        }
-        
-        // Agent Selection
-        function selectAgent(agentId, agentName, element) {
-            selectedAgent = ALBO_AGENTS[agentId];
-            selectedAgentName = agentName;
-            
-            // Reset all cards
-            var cards = document.querySelectorAll('[onclick*="selectAgent"]');
-            for (var i = 0; i < cards.length; i++) {
-                cards[i].style.borderColor = '#e9ecef';
-                cards[i].style.background = 'white';
-                cards[i].style.color = 'black';
-                cards[i].classList.remove('selected');
-            }
-            
-            // Highlight selected card
-            element.style.borderColor = '#667eea';
-            element.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            element.style.color = 'white';
-            element.classList.add('selected');
-            
-            showStatus('✅ Agent "' + agentName + '" ausgewählt', 'success');
-            console.log('🎯 Agent ausgewählt:', selectedAgent);
-        }
-        
-        // SAFE processEmail function
+        // E-Mail verarbeiten
         function processEmail(actionType) {
             if (!selectedAgent) {
-                showStatus('❌ Bitte wählen Sie zuerst einen Agent aus', 'error');
+                updateStatus('❌ Bitte wählen Sie zuerst einen Agent aus', 'error');
                 return;
             }
             
-            try {
-                showStatus('🤖 ' + selectedAgent.name + ' verarbeitet E-Mail...', 'loading');
-                
-                // Simulation der Verarbeitung
-                setTimeout(function() {
-                    var template = selectedAgent.templates[actionType];
-                    if (template) {
-                        showAIResponse(template.analysis, template.response);
-                        showStatus('✅ ' + selectedAgent.name + ': Verarbeitung abgeschlossen', 'success');
-                        console.log('✅ Email verarbeitet mit:', actionType);
-                    }
-                }, 1500);
-                
-            } catch (error) {
-                console.error('❌ Processing error:', error);
-                showStatus('❌ Verarbeitung fehlgeschlagen', 'error');
-            }
+            updateStatus('🤖 Agent verarbeitet E-Mail...', 'loading');
+            console.log('Verarbeite mit Agent:', selectedAgent, 'Action:', actionType);
+            
+            // Simulation
+            setTimeout(function() {
+                showAIResponse(selectedAgent, actionType);
+                updateStatus('✅ Verarbeitung abgeschlossen', 'success');
+            }, 2000);
         }
         
-        function showAIResponse(analysis, draftResponse) {
+        // AI Response anzeigen
+        function showAIResponse(agent, action) {
             var responseDiv = document.getElementById('aiResponse');
-            var analysisContent = document.getElementById('analysisContent');
-            var draftContent = document.getElementById('draftContent');
+            var content = document.getElementById('responseContent');
             
-            if (responseDiv && analysisContent && draftContent) {
-                analysisContent.innerHTML = '<strong>Analyse:</strong> ' + analysis;
-                draftContent.innerHTML = '<strong>Antwort-Entwurf:</strong><br><pre style="white-space: pre-wrap; font-family: inherit;">' + draftResponse + '</pre>';
-                responseDiv.style.display = 'block';
-            }
+            var responses = {
+                'finance': 'Finanzielle E-Mail analysiert. Rechnung erkannt, Zahlungsziel identifiziert.',
+                'business': 'Geschäfts-E-Mail klassifiziert. Standard-Workflow anwendbar.',
+                'content': 'Text optimiert. Stil verbessert, Grammatik korrigiert.',
+                'data': 'Datenanalyse abgeschlossen. Trends erkannt, KPIs extrahiert.'
+            };
+            
+            content.innerHTML = '<strong>Analyse:</strong> ' + responses[agent] + '<br><br>' +
+                               '<strong>Aktion:</strong> ' + action + '<br><br>' +
+                               '<strong>Antwort:</strong> Vielen Dank für Ihre Nachricht. Wir haben Ihre Anfrage bearbeitet.';
+            
+            responseDiv.style.display = 'block';
         }
         
-        // Status Display
-        function showStatus(message, type) {
-            var status = document.getElementById('status');
-            if (!status) return;
+        // Status Update
+        function updateStatus(message, type) {
+            var statusDiv = document.getElementById('status');
             
-            status.style.display = 'block';
-            
-            // Style based on type
             if (type === 'success') {
-                status.style.background = '#d4edda';
-                status.style.color = '#155724';
-                status.style.border = '1px solid #c3e6cb';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
             } else if (type === 'error') {
-                status.style.background = '#f8d7da';
-                status.style.color = '#721c24';
-                status.style.border = '1px solid #f5c6cb';
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
             } else if (type === 'loading') {
-                status.style.background = '#d1ecf1';
-                status.style.color = '#0c5460';
-                status.style.border = '1px solid #bee5eb';
-                message = '⏳ ' + message;
+                statusDiv.style.background = '#d1ecf1';
+                statusDiv.style.color = '#0c5460';
             }
             
-            status.innerHTML = message;
-            
-            // Auto-hide after 5 seconds (except loading)
-            if (type !== 'loading') {
-                setTimeout(function() {
-                    status.style.display = 'none';
-                }, 5000);
-            }
+            statusDiv.innerHTML = message;
+            console.log('Status:', message);
         }
         
-        // Initialize
-        console.log('🚀 ALBO KI-Agent loaded - Ultra Safe Version');
+        console.log('ALBO KI-Agent Script geladen');
     </script>
 
 </body>
