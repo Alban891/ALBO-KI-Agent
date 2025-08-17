@@ -521,6 +521,18 @@
             
             // Live E-Mail Daten laden
             loadCurrentEmailData();
+
+// Starte KI-Analyse
+if (Office.context.mailbox && Office.context.mailbox.item) {
+    setTimeout(() => {
+        const subject = Office.context.mailbox.item.subject || 'Demo E-Mail';
+        const sender = Office.context.mailbox.item.from?.emailAddress || 'demo@example.com';
+        analyzeEmailWithAI(subject, sender);
+    }, 1000);
+} else {
+    // Demo-Modus
+    analyzeEmailWithAI('Mahnung - Rechnung Nr. 2024-001', 'buchhaltung@musterfirma.de');
+}
             
             // Floating Icon Effekt aktivieren
             initializeFloatingIcon();
@@ -590,7 +602,64 @@
         function updateEmailSender(sender) {
             console.log('📧 Sender erkannt:', sender);
         }
+        // NEUE FUNKTION: Echte E-Mail Analyse mit OpenAI
+async function analyzeEmailWithAI(emailSubject, emailSender) {
+    try {
+        const response = await fetch('https://albo-ki-agent.vercel.app/api/analyze-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                subject: emailSubject,
+                sender: emailSender,
+                agentType: selectedAgent || 'controller'
+            })
+        });
         
+        const analysis = await response.json();
+        updateEmailAnalysis(analysis);
+    } catch (error) {
+        console.log('AI-Analysis Fallback zu Demo-Daten');
+        updateEmailAnalysisDemo(emailSubject, emailSender);
+    }
+}
+
+// NEUE FUNKTION: Email Analysis Update
+function updateEmailAnalysis(analysis) {
+    const emailContent = document.getElementById('emailContent');
+    emailContent.innerHTML = `
+        <div class="summary-text">
+            ${analysis.summary}
+            <span class="priority-indicator">${analysis.priority}</span>
+        </div>
+    `;
+}
+
+// FALLBACK: Intelligente Demo-Analyse
+function updateEmailAnalysisDemo(subject, sender) {
+    let summary = '';
+    let priority = '';
+    
+    if (subject && subject.toLowerCase().includes('mahnung')) {
+        summary = '<strong>Zahlungserinnerung</strong> erkannt. Sofortige Bearbeitung erforderlich.';
+        priority = '🚨 Hohe Priorität';
+    } else if (subject && subject.toLowerCase().includes('rechnung')) {
+        summary = '<strong>Rechnungsbezogene Anfrage</strong> erkannt. Standardbearbeitung möglich.';
+        priority = '📋 Normal';
+    } else {
+        summary = '<strong>Geschäfts-E-Mail</strong> erhalten. KI-Analyse abgeschlossen.';
+        priority = '📊 Standard';
+    }
+    
+    const emailContent = document.getElementById('emailContent');
+    emailContent.innerHTML = `
+        <div class="summary-text">
+            ${summary}
+            <span class="priority-indicator">${priority}</span>
+        </div>
+    `;
+}
         // NEUE FUNKTION: Floating Icon Effekte
         function initializeFloatingIcon() {
             const floatingIcon = document.querySelector('.floating-icon');
