@@ -177,7 +177,7 @@
             align-items: center;
         }
 
-        /* AGENTS GRID - Modernisiert */
+        /* ROLE-BASED DROPDOWN STYLES */
         .agents-section {
             margin: 20px;
         }
@@ -191,60 +191,83 @@
             align-items: center;
         }
 
-        .agents-section h3::before {
-            content: '🤖';
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .agents-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        .dropdown-container {
             margin-bottom: 20px;
         }
 
-        .agent-button {
-            padding: 15px;
-            border: 2px solid var(--border-light);
-            border-radius: 12px;
-            background: var(--surface);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            font-family: inherit;
+        .dropdown-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
             font-size: 0.9rem;
         }
 
-        .agent-button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-elevated);
+        .agent-dropdown {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--surface);
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(1, 120, 212, 0.1);
+        }
+
+        .agent-dropdown:hover {
             border-color: var(--primary-blue);
         }
 
-        .agent-button.selected {
-            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
-            color: white;
-            border-color: var(--primary-blue);
-            box-shadow: var(--shadow-elevated);
+        /* Selected Agent Display */
+        .selected-agent {
+            margin-top: 15px;
+            animation: slideIn 0.3s ease;
         }
 
-        .agent-icon {
-            font-size: 1.5rem;
-            margin-bottom: 6px;
+        .agent-card-selected {
+            padding: 20px;
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f0f9ff, #e3f2fd);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .agent-icon-large {
+            font-size: 2.5rem;
             display: block;
         }
 
-        .agent-name {
-            font-weight: 600;
+        .agent-details {
+            flex: 1;
+        }
+
+        .agent-name-large {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
             margin-bottom: 4px;
         }
 
-        .agent-description {
+        .agent-description-large {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .agent-capabilities {
             font-size: 0.75rem;
-            opacity: 0.8;
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
         /* ACTION BUTTONS - Modernisiert */
@@ -301,6 +324,21 @@
         .btn-draft {
             background: linear-gradient(135deg, var(--primary-blue), #106ebe);
             color: white;
+        }
+
+        .btn-dashboard {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+        }
+
+        .summary-text {
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .priority-indicator {
+            color: var(--error-red);
+            font-weight: 600;
         }
 
         .btn-review {
@@ -412,40 +450,41 @@
             </div>
         </div>
         
-        <!-- Agents Enhanced -->
+        <!-- Role-Based Agent Selection -->
         <div class="agents-section">
-            <h3>Spezialisierte Finance-Agenten</h3>
+            <h3>🎯 Finance-Spezialist auswählen</h3>
             
-            <div class="agents-grid">
-                <button class="agent-button" onclick="selectAgent('finance')" id="btn-finance">
-                    <span class="agent-icon">💰</span>
-                    <div class="agent-name">Finance Expert</div>
-                    <div class="agent-description">Rechnungsanalyse</div>
-                </button>
-                
-                <button class="agent-button" onclick="selectAgent('business')" id="btn-business">
-                    <span class="agent-icon">📊</span>
-                    <div class="agent-name">Business Assistant</div>
-                    <div class="agent-description">Workflow Management</div>
-                </button>
-                
-                <button class="agent-button" onclick="selectAgent('content')" id="btn-content">
-                    <span class="agent-icon">✍️</span>
-                    <div class="agent-name">Content Writer</div>
-                    <div class="agent-description">Text Optimierung</div>
-                </button>
-                
-                <button class="agent-button" onclick="selectAgent('data')" id="btn-data">
-                    <span class="agent-icon">📈</span>
-                    <div class="agent-name">Data Analyst</div>
-                    <div class="agent-description">KPI Extraktion</div>
-                </button>
+            <div class="dropdown-container">
+                <label for="agentSelect" class="dropdown-label">Ihre Rolle:</label>
+                <select id="agentSelect" class="agent-dropdown" onchange="selectAgentFromDropdown()">
+                    <option value="">-- Bitte wählen Sie Ihre Rolle --</option>
+                    <option value="cfo">👔 CFO (Chief Financial Officer)</option>
+                    <option value="controller">📊 Controller</option>
+                    <option value="ma-berater">🤝 M&A-Berater</option>
+                    <option value="kreditorenbuchhalter">💳 Kreditorenbuchhalter</option>
+                    <option value="debitorenbuchhalter">💰 Debitorenbuchhalter</option>
+                    <option value="anlagenbuchhalter">🏭 Anlagenbuchhalter</option>
+                    <option value="business-dev">🚀 Business Development Manager</option>
+                    <option value="treasury">🏦 Treasury Manager</option>
+                </select>
+            </div>
+            
+            <!-- Selected Agent Display -->
+            <div id="selectedAgentDisplay" class="selected-agent" style="display: none;">
+                <div class="agent-card-selected">
+                    <span id="selectedAgentIcon" class="agent-icon-large"></span>
+                    <div class="agent-details">
+                        <div id="selectedAgentName" class="agent-name-large"></div>
+                        <div id="selectedAgentDescription" class="agent-description-large"></div>
+                        <div id="selectedAgentCapabilities" class="agent-capabilities"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <!-- Actions Enhanced -->
+        <!-- Intelligent Actions Corrected -->
         <div class="actions-section">
-            <h3>Intelligente Aktionen</h3>
+            <h3>🎯 Intelligente Aktionen</h3>
             
             <button onclick="processEmail('auto')" class="action-button btn-auto">
                 <span class="btn-icon">⚡</span>
@@ -457,9 +496,9 @@
                 Als Entwurf speichern
             </button>
             
-            <button onclick="processEmail('review')" class="action-button btn-review">
-                <span class="btn-icon">🔍</span>
-                Überdenken & Entwurf
+            <button onclick="processEmail('dashboard')" class="action-button btn-dashboard">
+                <span class="btn-icon">📊</span>
+                Im Dashboard bearbeiten
             </button>
         </div>
         
@@ -567,33 +606,122 @@
             });
         }
         
-        // Agent auswählen - ERWEITERT
-        function selectAgent(agentType) {
+        // NEUE FUNKTION: Agent aus Dropdown auswählen
+        function selectAgentFromDropdown() {
+            const dropdown = document.getElementById('agentSelect');
+            const agentType = dropdown.value;
+            
+            if (!agentType) {
+                hideSelectedAgent();
+                disableActionButtons();
+                return;
+            }
+            
             selectedAgent = agentType;
+            showSelectedAgent(agentType);
+            enableActionButtons();
             
-            // Reset alle Agent Buttons
-            document.querySelectorAll('.agent-button').forEach(btn => {
-                btn.classList.remove('selected');
-            });
+            const agentName = getAgentDisplayName(agentType);
+            updateStatus(`🤖 ${agentName} ausgewählt - Bereit für Verarbeitung`, 'success');
+            console.log('Agent gewählt:', agentType);
+        }
+        
+        // NEUE FUNKTION: Ausgewählten Agent anzeigen
+        function showSelectedAgent(agentType) {
+            const display = document.getElementById('selectedAgentDisplay');
+            const icon = document.getElementById('selectedAgentIcon');
+            const name = document.getElementById('selectedAgentName');
+            const description = document.getElementById('selectedAgentDescription');
+            const capabilities = document.getElementById('selectedAgentCapabilities');
             
-            // Markiere gewählten Agent
-            document.getElementById('btn-' + agentType).classList.add('selected');
+            const agentData = getAgentData(agentType);
             
-            // Enable Action Buttons
+            icon.textContent = agentData.icon;
+            name.textContent = agentData.name;
+            description.textContent = agentData.description;
+            capabilities.textContent = agentData.capabilities;
+            
+            display.style.display = 'block';
+        }
+        
+        // NEUE FUNKTION: Agent ausblenden
+        function hideSelectedAgent() {
+            document.getElementById('selectedAgentDisplay').style.display = 'none';
+        }
+        
+        // NEUE FUNKTION: Agent-Daten definieren
+        function getAgentData(agentType) {
+            const agents = {
+                'cfo': {
+                    icon: '👔',
+                    name: 'CFO (Chief Financial Officer)',
+                    description: 'Strategische Finanzplanung & Executive Reporting',
+                    capabilities: 'Cashflow-Analyse, Board-Reports, M&A-Bewertung, Risikomanagement'
+                },
+                'controller': {
+                    icon: '📊',
+                    name: 'Controller',
+                    description: 'Controlling, KPIs & Performance Management',
+                    capabilities: 'Budget-Controlling, Variance-Analyse, KPI-Dashboards, Cost-Center-Analyse'
+                },
+                'ma-berater': {
+                    icon: '🤝',
+                    name: 'M&A-Berater',
+                    description: 'Mergers & Acquisitions Expertise',
+                    capabilities: 'Due Diligence, Unternehmensbewertung, Deal-Strukturierung, Synergien-Analyse'
+                },
+                'kreditorenbuchhalter': {
+                    icon: '💳',
+                    name: 'Kreditorenbuchhalter',
+                    description: 'Verbindlichkeiten & Lieferantenmanagement',
+                    capabilities: 'Rechnungsprüfung, Zahlungslauf, Lieferantenstamm, Mahnwesen'
+                },
+                'debitorenbuchhalter': {
+                    icon: '💰',
+                    name: 'Debitorenbuchhalter',
+                    description: 'Forderungen & Kundenkonten',
+                    capabilities: 'Rechnungsstellung, Forderungsmanagement, Inkasso, Kundenstamm'
+                },
+                'anlagenbuchhalter': {
+                    icon: '🏭',
+                    name: 'Anlagenbuchhalter',
+                    description: 'Anlagevermögen & Abschreibungen',
+                    capabilities: 'Asset-Management, AfA-Berechnungen, Anlagenspiegel, Inventur'
+                },
+                'business-dev': {
+                    icon: '🚀',
+                    name: 'Business Development Manager',
+                    description: 'Geschäftsentwicklung & Strategische Partnerschaften',
+                    capabilities: 'Market-Analysis, Partnership-Deals, Revenue-Growth, Competitive-Intelligence'
+                },
+                'treasury': {
+                    icon: '🏦',
+                    name: 'Treasury Manager',
+                    description: 'Liquiditätsmanagement & Finanzierung',
+                    capabilities: 'Cash-Management, Zinsrisiko, Währungshedging, Banking-Relations'
+                }
+            };
+            
+            return agents[agentType] || agents['controller'];
+        }
+        
+        // ERWEITERTE FUNKTION: Agent Display Names
+        function getAgentDisplayName(agentType) {
+            const agentData = getAgentData(agentType);
+            return agentData.name;
+        }
+        
+        // NEUE FUNKTIONEN: Button-Status Management
+        function enableActionButtons() {
             document.querySelectorAll('.action-button').forEach(btn => {
                 btn.disabled = false;
             });
-            
-            // Agent-spezifische Meldung
-            const agentNames = {
-                'finance': 'Finance Expert - Optimiert für Rechnungsanalyse',
-                'business': 'Business Assistant - Workflow-Spezialist',
-                'content': 'Content Writer - Text-Optimierungs-Experte',
-                'data': 'Data Analyst - KPI & Datenextraktion'
-            };
-            
-            updateStatus('🤖 ' + agentNames[agentType] + ' ausgewählt', 'success');
-            console.log('Agent gewählt:', agentType);
+        }
+        
+        function disableActionButtons() {
+            document.querySelectorAll('.action-button').forEach(btn => {
+                btn.disabled = true;
+            });
         }
         
         // E-Mail verarbeiten - ERWEITERT
@@ -630,71 +758,100 @@
             }, 2500);
         }
         
-        // NEUE FUNKTION: Enhanced AI Response
+        // ERWEITERTE FUNKTION: Enhanced AI Response mit neuen Rollen
         function showEnhancedAIResponse(agent, action) {
             const responseDiv = document.getElementById('aiResponse');
             const content = document.getElementById('responseContent');
             
             const agentResponses = {
-                'finance': {
-                    analysis: 'Rechnung Nr. INV-2024-001 über 15.750,00 EUR analysiert. Zahlungsziel um 4 Tage überschritten.',
-                    recommendation: 'Sofortige Zahlung empfohlen - Mahngebühren vermeiden',
+                'cfo': {
+                    analysis: 'Strategische Cashflow-Analyse: Zahlungsausfall würde Liquidität um 0,8% reduzieren. Vernachlässigbarer Impact auf Quartals-KPIs.',
+                    recommendation: 'Zahlung freigeben - strategisch unkritisch, operativ relevant.',
+                    confidence: '96%',
+                    action_taken: 'Fall an Executive Dashboard übertragen für detaillierte Cashflow-Analyse'
+                },
+                'controller': {
+                    analysis: 'Budget-Impact Analysis: -15.750 EUR auf Cost-Center 4200. Q4-Budget noch 23% verfügbar.',
+                    recommendation: 'Zahlung genehmigen - Budget-Rahmen eingehalten.',
                     confidence: '94%',
-                    action_taken: 'Zahlung priorisiert, Buchhaltung benachrichtigt'
+                    action_taken: 'Controlling-Report erstellt, Variance-Tracking aktualisiert'
                 },
-                'business': {
-                    analysis: 'Geschäfts-E-Mail klassifiziert als Mahnwesen. Standard-Workflow anwendbar.',
-                    recommendation: 'Automatische Weiterleitung an Kreditorenbuchhaltung',
-                    confidence: '89%',
-                    action_taken: 'Workflow #MAH-001 ausgelöst'
+                'ma-berater': {
+                    analysis: 'Due Diligence Check: Lieferant hat Clean-Track-Record. Keine Red-Flags in Compliance-Prüfung.',
+                    recommendation: 'Zahlung freigeben - Vendor due diligence erfolgreich.',
+                    confidence: '98%',
+                    action_taken: 'Deal-Documentation aktualisiert, Risk-Assessment abgeschlossen'
                 },
-                'content': {
-                    analysis: 'E-Mail-Text analysiert. Höflicher aber bestimmter Ton erkannt.',
-                    recommendation: 'Professionelle Antwort mit Zahlungsbestätigung',
-                    confidence: '91%',
-                    action_taken: 'Standardantwort generiert und optimiert'
-                },
-                'data': {
-                    analysis: 'Finanzdaten extrahiert: Betrag, Rechnungsnummer, Fälligkeitsdatum.',
-                    recommendation: 'Daten an ERP-System übertragen',
+                'kreditorenbuchhalter': {
+                    analysis: 'Kreditorenprüfung: Zahlungskonditionen 30 Tage netto. Mahnung berechtigt - 4 Tage Verzug.',
+                    recommendation: 'Sofortige Zahlung zur Vermeidung weiterer Mahnkosten.',
                     confidence: '97%',
-                    action_taken: 'Datensatz in Finanzsystem aktualisiert'
+                    action_taken: 'Zahlungslauf vorbereitet, Lieferantenkonto aktualisiert'
+                },
+                'debitorenbuchhalter': {
+                    analysis: 'Debitorenanalyse: Unternehmen hat ausgezeichnetes Zahlungsverhalten (DSO: 28 Tage).',
+                    recommendation: 'Zahlung bestätigen - vertrauensvoller Geschäftspartner.',
+                    confidence: '95%',
+                    action_taken: 'Kundenstamm gepflegt, Credit-Score bestätigt'
+                },
+                'anlagenbuchhalter': {
+                    analysis: 'Asset-Analysis: Produktionsanlage A-2024-0157 kritisch für Operations. Wartung überfällig.',
+                    recommendation: 'Dringend zahlen - Produktionsausfall vermeiden.',
+                    confidence: '99%',
+                    action_taken: 'Anlagenspiegel aktualisiert, Maintenance-Schedule angepasst'
+                },
+                'business-dev': {
+                    analysis: 'Partnership Impact: Strategischer Supplier für Market-Expansion. Relationship-Value: 2.3M EUR/Jahr.',
+                    recommendation: 'Zahlung priorisieren - wichtiger strategischer Partner.',
+                    confidence: '93%',
+                    action_taken: 'Partner-Dashboard informiert, Relationship-Score aktualisiert'
+                },
+                'treasury': {
+                    analysis: 'Liquidity Check: Cash-Position robust (47.2M EUR). Zahlung hat minimal impact auf Treasury-KPIs.',
+                    recommendation: 'Zahlung freigeben - Liquidität ausreichend.',
+                    confidence: '96%',
+                    action_taken: 'Cash-Flow-Forecast angepasst, Treasury-Dashboard aktualisiert'
                 }
             };
             
             const actionTexts = {
                 'auto': 'Antwort automatisch versendet ✅',
                 'draft': 'Entwurf in Drafts gespeichert 📝',
-                'review': 'Zur Überprüfung markiert 🔍'
+                'dashboard': 'Fall an Dashboard übertragen 📊'
             };
             
-            const response = agentResponses[agent];
+            const response = agentResponses[agent] || agentResponses['controller'];
+            const agentName = getAgentDisplayName(agent);
             
             content.innerHTML = `
                 <div class="response-section">
-                    <div class="response-label">🤖 Agent:</div>
-                    ${selectedAgent.charAt(0).toUpperCase() + selectedAgent.slice(1)} Expert
+                    <div class="response-label">🤖 Spezialist:</div>
+                    ${agentName}
                 </div>
                 <div class="response-section">
-                    <div class="response-label">📊 Analyse:</div>
+                    <div class="response-label">📊 Fachbereich-Analyse:</div>
                     ${response.analysis}
                 </div>
                 <div class="response-section">
-                    <div class="response-label">💡 Empfehlung:</div>
+                    <div class="response-label">💡 Experten-Empfehlung:</div>
                     ${response.recommendation}
                 </div>
                 <div class="response-section">
-                    <div class="response-label">🎯 Konfidenz:</div>
+                    <div class="response-label">🎯 Konfidenz-Level:</div>
                     <span style="color: var(--success-green); font-weight: bold;">${response.confidence}</span>
                 </div>
                 <div class="response-section">
-                    <div class="response-label">⚡ Ausgeführte Aktion:</div>
+                    <div class="response-label">⚡ Durchgeführte Aktion:</div>
                     ${actionTexts[action]}<br>
                     <small style="color: var(--text-secondary);">${response.action_taken}</small>
                 </div>
-                <div class="response-section" style="margin-top: 15px; padding: 12px; background: rgba(1, 120, 212, 0.1); border-radius: 6px;">
+                <div class="response-section" style="margin-top: 15px; padding: 12px; background: rgba(111, 66, 193, 0.1); border-radius: 6px; border-left: 3px solid #6f42c1;">
+                    <div class="response-label">📊 Dashboard-Integration:</div>
+                    <em>Fall wurde erfolgreich an das spezialisierte ${agentName} Dashboard übertragen. Dort stehen erweiterte Analyse-Tools, historische Vergleichsdaten und Workflow-Automatisierung zur Verfügung. <strong>Dashboard öffnen →</strong></em>
+                </div>
+                <div class="response-section" style="margin-top: 10px; padding: 12px; background: rgba(1, 120, 212, 0.1); border-radius: 6px;">
                     <div class="response-label">✉️ Generierte Antwort:</div>
-                    <em>"Vielen Dank für Ihre Zahlungserinnerung bezüglich Rechnung Nr. INV-2024-001. Die Zahlung wurde veranlasst und wird in den nächsten 2 Werktagen auf Ihrem Konto eingehen. Für Rückfragen stehen wir gerne zur Verfügung."</em>
+                    <em>"Vielen Dank für Ihre Zahlungserinnerung bezüglich Rechnung Nr. INV-2024-001. Die Zahlung wurde durch unseren ${agentName} geprüft und freigegeben. Der Betrag wird in den nächsten 2 Werktagen überwiesen."</em>
                 </div>
             `;
             
