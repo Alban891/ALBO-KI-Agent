@@ -316,6 +316,11 @@
             box-shadow: var(--shadow-elevated);
         }
 
+        .btn-preview {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
         .btn-auto {
             background: linear-gradient(135deg, var(--success-green), #0e6b0e);
             color: white;
@@ -485,6 +490,11 @@
         <!-- Intelligent Actions Corrected -->
         <div class="actions-section">
             <h3>🎯 Intelligente Aktionen</h3>
+
+            <button onclick="processEmail('preview')" class="action-button btn-preview">
+                <span class="btn-icon">👁️</span>
+                Vorschau anzeigen
+            </button>
             
             <button onclick="processEmail('auto')" class="action-button btn-auto">
                 <span class="btn-icon">⚡</span>
@@ -884,6 +894,7 @@ function updateEmailAnalysisDemo(subject, sender) {
             };
             
             const actionTexts = {
+                'preview': 'Vorschau generiert 👁️'
                 'auto': 'Antwort automatisch versendet ✅',
                 'draft': 'Entwurf in Drafts gespeichert 📝',
                 'dashboard': 'Fall an Dashboard übertragen 📊'
