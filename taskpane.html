@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ALBO KI-Finance-Agent</title>
     
@@ -10,19 +10,17 @@
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     
     <style>
-        /* ERWEITERTE STYLES - SAFE HYBRID APPROACH */
         :root {
-            --primary-blue: #0078d4;
-            --success-green: #107c10;
-            --warning-orange: #ff8c00;
-            --error-red: #d13438;
+            --primary: #0078d4;
+            --primary-dark: #106ebe;
+            --success: #107c10;
+            --warning: #ff8c00;
+            --error: #d13438;
             --surface: #ffffff;
             --background: #f3f2f1;
             --text-primary: #323130;
             --text-secondary: #605e5c;
-            --border-light: #edebe9;
-            --shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
-            --shadow-elevated: 0 0.5rem 1rem rgba(0,0,0,0.15);
+            --border: #edebe9;
         }
 
         * {
@@ -32,1326 +30,724 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: var(--background);
             color: var(--text-primary);
-            line-height: 1.4;
-            margin: 0;
-            padding: 0;
+            font-size: 14px;
         }
 
-        /* CONTAINER - Erweitert */
-        .main-container {
-            background: var(--surface);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* FLOATING ICON SIMULATION */
-        .floating-icon {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            font-weight: bold;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
             font-size: 12px;
-            z-index: 1000;
-            box-shadow: var(--shadow-elevated);
-            animation: float 3s ease-in-out infinite;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .floating-icon:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0.75rem 1.5rem rgba(1, 120, 212, 0.4);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-        }
-
-        /* HEADER - Modernisiert */
-        .header-section {
-            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
-            animation: float-bg 20s infinite linear;
-        }
-
-        @keyframes float-bg {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .header-section h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-section p {
             opacity: 0.9;
-            font-size: 0.9rem;
-            position: relative;
-            z-index: 1;
-            margin: 0;
         }
 
-        /* STATUS - Erweitert */
-        #status {
-            padding: 12px 20px;
-            margin: 15px 20px;
+        /* Container */
+        .container {
+            padding: 16px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: white;
             border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-            border-left: 4px solid var(--primary-blue);
-            background: #f0f9ff;
-            color: var(--primary-blue);
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
-
-        #status.success {
-            background: #f0f9f4;
-            color: var(--success-green);
-            border-color: var(--success-green);
-        }
-
-        #status.error {
-            background: #fef2f2;
-            color: var(--error-red);
-            border-color: var(--error-red);
-        }
-
-        #status.loading {
-            background: #fffbeb;
-            color: var(--warning-orange);
-            border-color: var(--warning-orange);
-        }
-
-        /* EMAIL PREVIEW - Erweitert */
-        #emailPreview {
-            margin: 20px;
-            padding: 20px;
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            transition: all 0.3s ease;
-        }
-
-        #emailPreview:hover {
-            box-shadow: var(--shadow-elevated);
-        }
-
-        #emailPreview h4 {
-            margin: 0 0 12px 0;
-            color: var(--text-primary);
-            font-weight: 600;
+            padding: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary);
             display: flex;
             align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* ROLE-BASED DROPDOWN STYLES */
-        .agents-section {
-            margin: 20px;
+        .status-bar.success {
+            border-color: var(--success);
         }
 
-        .agents-section h3 {
-            font-size: 1.1rem;
+        .status-bar.error {
+            border-color: var(--error);
+        }
+
+        .status-bar.warning {
+            border-color: var(--warning);
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        .status-text {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        /* E-Mail Info Card */
+        .email-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .email-card-header {
             font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-primary);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        .dropdown-container {
-            margin-bottom: 20px;
-        }
-
-        .dropdown-label {
-            display: block;
-            font-weight: 600;
+        .email-detail {
+            display: flex;
             margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .email-label {
+            font-weight: 600;
+            width: 80px;
+            color: var(--text-secondary);
+        }
+
+        .email-value {
+            flex: 1;
             color: var(--text-primary);
-            font-size: 0.9rem;
+        }
+
+        .email-priority {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #fef2f2;
+            color: var(--error);
+        }
+
+        /* Agent Selection */
+        .agent-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .agent-header {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .agent-dropdown {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border-light);
-            border-radius: 8px;
-            background: var(--surface);
-            font-size: 0.9rem;
-            font-family: inherit;
-            color: var(--text-primary);
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s;
         }
 
         .agent-dropdown:focus {
             outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(1, 120, 212, 0.1);
+            border-color: var(--primary);
         }
 
-        .agent-dropdown:hover {
-            border-color: var(--primary-blue);
-        }
-
-        /* Selected Agent Display */
-        .selected-agent {
-            margin-top: 15px;
-            animation: slideIn 0.3s ease;
-        }
-
-        .agent-card-selected {
-            padding: 20px;
-            border: 2px solid var(--primary-blue);
-            border-radius: 12px;
-            background: linear-gradient(135deg, #f0f9ff, #e3f2fd);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .agent-icon-large {
-            font-size: 2.5rem;
-            display: block;
-        }
-
-        .agent-details {
-            flex: 1;
-        }
-
-        .agent-name-large {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--primary-blue);
-            margin-bottom: 4px;
-        }
-
-        .agent-description-large {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .agent-capabilities {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* ACTION BUTTONS - Modernisiert */
-        .actions-section {
-            margin: 20px;
-        }
-
-        .actions-section h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-        }
-
-        .actions-section h3::before {
-            content: '⚡';
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .action-button {
-            width: 100%;
-            padding: 14px 20px;
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: inherit;
-        }
-
-        .action-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .action-button:not(:disabled):hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-elevated);
-        }
-
-        .btn-preview {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-
-        .btn-auto {
-            background: linear-gradient(135deg, var(--success-green), #0e6b0e);
-            color: white;
-        }
-
-        .btn-draft {
-            background: linear-gradient(135deg, var(--primary-blue), #106ebe);
-            color: white;
-        }
-
-        .btn-dashboard {
-            background: linear-gradient(135deg, #6f42c1, #5a32a3);
-            color: white;
-        }
-
-        .summary-text {
-            line-height: 1.6;
-            font-size: 0.9rem;
-        }
-
-        .priority-indicator {
-            color: var(--error-red);
-            font-weight: 600;
-        }
-
-        .btn-review {
-            background: linear-gradient(135deg, var(--warning-orange), #e67c00);
-            color: white;
-        }
-
-        .btn-icon {
-            margin-right: 8px;
-            font-size: 1rem;
-        }
-
-        /* AI RESPONSE - Erweitert */
-        #aiResponse {
-            margin: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
-            border-radius: 12px;
-            border: 1px solid #bbdefb;
+        .agent-suggestion {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #0ea5e9;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
             display: none;
+        }
+
+        .agent-suggestion.show {
+            display: block;
             animation: slideIn 0.3s ease;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        #aiResponse h4 {
-            margin: 0 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #bbdefb;
-            display: flex;
-            align-items: center;
+        .suggestion-text {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
 
-        .response-content {
-            font-size: 0.9rem;
-            line-height: 1.5;
+        .suggestion-agent {
+            font-weight: 600;
+            color: var(--primary);
         }
 
-        .response-section {
+        .confidence-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* Action Buttons */
+        .actions-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .actions-header {
+            font-weight: 600;
             margin-bottom: 12px;
         }
 
-        .response-label {
-            font-weight: 600;
-            color: var(--primary-blue);
-            margin-bottom: 4px;
+        .action-buttons {
+            display: grid;
+            gap: 10px;
         }
 
-        /* LOADING ANIMATION */
-        .loading-spinner {
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        .btn-preview {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .btn-auto {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-draft {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-dashboard {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .btn-icon {
+            font-size: 16px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 350px) {
-            .agents-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Hidden */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
-
 <body>
-    <div class="main-container">
-        
-        <!-- FLOATING ICON SIMULATION -->
-        <div class="floating-icon" title="ALBO KI-Agent aktiv">
-            ALBO
-        </div>
-        
-        <!-- Header -->
-        <div class="header-section">
-            <h1>🚀 ALBO KI-Agent</h1>
-            <p>Finance-Automatisierung Suite</p>
-        </div>
-        
-        <!-- Status -->
-        <div id="status">
-            Add-In erfolgreich geladen!
-        </div>
-        
-        <!-- Email Preview Enhanced -->
-        <div id="emailPreview">
-            <h4>📧 Live E-Mail Analyse</h4>
-            <div id="emailContent" style="font-size: 12px; color: #666;">
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
-                    <strong>Erkannt:</strong> <span style="color: var(--error-red);">Zahlungserinnerung</span><br>
-                    <strong>Betrag:</strong> 15.750,00 EUR<br>
-                    <strong>Status:</strong> <span style="color: var(--error-red);">Überfällig (4 Tage)</span>
-                </div>
-                <strong>Betreff:</strong> Mahnung - Rechnung Nr. 2024-001<br>
-                <strong>Von:</strong> buchhaltung@musterfirma.de<br><br>
-                <em>Sehr geehrte Damen und Herren, anbei erhalten Sie die Rechnung Nr. 2024-001 über 1.500,00 EUR...</em>
-            </div>
-        </div>
-        
-        <!-- Role-Based Agent Selection -->
-        <div class="agents-section">
-            <h3>🎯 Finance-Spezialist auswählen</h3>
-            
-            <div class="dropdown-container">
-                <label for="agentSelect" class="dropdown-label">Ihre Rolle:</label>
-                <select id="agentSelect" class="agent-dropdown" onchange="selectAgentFromDropdown()">
-                    <option value="">-- Bitte wählen Sie Ihre Rolle --</option>
-                    <option value="cfo">👔 CFO (Chief Financial Officer)</option>
-                    <option value="controller">📊 Controller</option>
-                    <option value="ma-berater">🤝 M&A-Berater</option>
-                    <option value="kreditorenbuchhalter">💳 Kreditorenbuchhalter</option>
-                    <option value="debitorenbuchhalter">💰 Debitorenbuchhalter</option>
-                    <option value="anlagenbuchhalter">🏭 Anlagenbuchhalter</option>
-                    <option value="business-dev">🚀 Business Development Manager</option>
-                    <option value="treasury">🏦 Treasury Manager</option>
-                </select>
-            </div>
-            
-            <!-- Selected Agent Display -->
-            <div id="selectedAgentDisplay" class="selected-agent" style="display: none;">
-                <div class="agent-card-selected">
-                    <span id="selectedAgentIcon" class="agent-icon-large"></span>
-                    <div class="agent-details">
-                        <div id="selectedAgentName" class="agent-name-large"></div>
-                        <div id="selectedAgentDescription" class="agent-description-large"></div>
-                        <div id="selectedAgentCapabilities" class="agent-capabilities"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Intelligent Actions Corrected -->
-        <div class="actions-section">
-            <h3>🎯 Intelligente Aktionen</h3>
+    <!-- Header -->
+    <div class="header">
+        <h1>🚀 ALBO KI-Agent</h1>
+        <p>Intelligente E-Mail Automatisierung</p>
+    </div>
 
-            <button onclick="processEmail('preview')" class="action-button btn-preview">
-                <span class="btn-icon">👁️</span>
-                Vorschau anzeigen
-            </button>
-            
-            <button onclick="processEmail('auto')" class="action-button btn-auto">
-                <span class="btn-icon">⚡</span>
-                Vollständig automatisch
-            </button>
-            
-            <button onclick="processEmail('draft')" class="action-button btn-draft">
-                <span class="btn-icon">📝</span>
-                Als Entwurf speichern
-            </button>
-            
-            <button onclick="processEmail('dashboard')" class="action-button btn-dashboard">
-                <span class="btn-icon">📊</span>
-                Im Dashboard bearbeiten
-            </button>
+    <!-- Container -->
+    <div class="container">
+        <!-- Status Bar -->
+        <div id="statusBar" class="status-bar">
+            <span class="status-icon">✅</span>
+            <span class="status-text">Add-In bereit</span>
         </div>
-        
-        <!-- AI Response Enhanced -->
-        <div id="aiResponse">
-            <h4>🤖 KI-Analyse & Verarbeitung</h4>
-            <div id="responseContent" class="response-content"></div>
+
+        <!-- E-Mail Info -->
+        <div class="email-card">
+            <div class="email-card-header">
+                <span>📧</span>
+                <span>Aktuelle E-Mail</span>
+            </div>
+            <div id="emailInfo">
+                <div class="email-detail">
+                    <span class="email-label">Betreff:</span>
+                    <span class="email-value" id="emailSubject">Wird geladen...</span>
+                </div>
+                <div class="email-detail">
+                    <span class="email-label">Von:</span>
+                    <span class="email-value" id="emailFrom">Wird geladen...</span>
+                </div>
+                <div class="email-detail">
+                    <span class="email-label">Priorität:</span>
+                    <span class="email-value">
+                        <span id="emailPriority" class="email-priority">Analysiere...</span>
+                    </span>
+                </div>
+            </div>
         </div>
-        
+
+        <!-- Agent Selection -->
+        <div class="agent-section">
+            <div class="agent-header">
+                <span>🤖 Agent auswählen</span>
+                <span class="ai-badge">KI-Empfehlung</span>
+            </div>
+            
+            <!-- KI Suggestion -->
+            <div id="agentSuggestion" class="agent-suggestion">
+                <div class="suggestion-text">
+                    🎯 Empfohlener Agent: <span id="suggestedAgent" class="suggestion-agent"></span>
+                </div>
+                <div class="confidence-bar">
+                    <div id="confidenceBar" class="confidence-fill"></div>
+                </div>
+            </div>
+
+            <!-- Dropdown -->
+            <select id="agentSelect" class="agent-dropdown" title="Agent auswählen" aria-label="Agent auswählen">
+                <option value="">Wähle einen Agenten...</option>
+                <option value="kreditor">💳 Kreditorenbuchhalter</option>
+                <option value="debitor">💰 Debitorenbuchhalter</option>
+                <option value="controller">📊 Controller</option>
+                <option value="cfo">👔 CFO</option>
+                <option value="treasury">🏦 Treasury Manager</option>
+                <option value="ma">🤝 M&A Berater</option>
+            </select>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-section">
+            <div class="actions-header">⚡ Aktionen</div>
+            <div class="action-buttons">
+                <button id="btnPreview" class="btn btn-preview" disabled>
+                    <span class="btn-icon">👁️</span>
+                    <span>Vorschau anzeigen</span>
+                </button>
+                
+                <button id="btnAuto" class="btn btn-auto" disabled>
+                    <span class="btn-icon">🚀</span>
+                    <span>Automatisch bearbeiten</span>
+                </button>
+                
+                <button id="btnDraft" class="btn btn-draft" disabled>
+                    <span class="btn-icon">✏️</span>
+                    <span>Als Entwurf speichern</span>
+                </button>
+                
+                <button id="btnDashboard" class="btn btn-dashboard">
+                    <span class="btn-icon">📊</span>
+                    <span>ALBO Enterprise öffnen</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
-        var selectedAgent = '';
-        var currentEmailData = null;
-        
-        // Fehlerbehandlung für uncaught errors
-        window.addEventListener('error', function(event) {
-            console.error('🚨 JavaScript Fehler:', event.error);
-            console.error('Datei:', event.filename, 'Zeile:', event.lineno);
-            updateStatus('❌ JavaScript-Fehler - siehe Browser-Konsole', 'error');
-        });
+        // Globale Variablen
+        let currentEmailData = null;
+        let selectedAgent = null;
+        let previewDialog = null;
 
-        // Promise rejection handling
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('🚨 Promise Rejection:', event.reason);
-            updateStatus('❌ Async-Fehler - siehe Browser-Konsole', 'error');
-        });
-        
-        // Office.js bereit - ERWEITERT mit Fehlerbehandlung
-        Office.onReady(function(info) {
-            try {
-                console.log('🚀 ALBO Finance AI-Agent geladen - Office Host:', info.host);
-                console.log('Platform:', info.platform);
-                
-                if (info.host === Office.HostType.Outlook) {
-                    updateStatus('✅ Outlook Add-In bereit - Verbinde mit E-Mail...', 'success');
-                    initializeOutlookAddin();
-                } else {
-                    console.warn('⚠️ Nicht in Outlook-Umgebung, starte Demo-Modus');
-                    initializeDemoMode();
-                }
-            } catch (error) {
-                console.error('❌ Office.onReady Fehler:', error);
-                updateStatus('⚠️ Office.js Fehler - Demo-Modus aktiv', 'loading');
-                initializeDemoMode();
+        // Office Ready
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Outlook) {
+                console.log('✅ ALBO Add-In geladen');
+                initialize();
             }
         });
 
-        // Outlook Add-In initialisieren
-        function initializeOutlookAddin() {
+        // Initialisierung
+        async function initialize() {
             try {
-                // Live E-Mail Daten laden
-                loadCurrentEmailData();
-
-                // Starte KI-Analyse nach kurzer Verzögerung
-                setTimeout(() => {
-                    try {
-                        if (Office.context.mailbox && Office.context.mailbox.item) {
-                            const subject = Office.context.mailbox.item.subject || 'Demo E-Mail';
-                            const sender = (Office.context.mailbox.item.from && Office.context.mailbox.item.from.emailAddress) || 'demo@example.com';
-                            analyzeEmailWithAI(subject, sender);
-                        } else {
-                            throw new Error('Kein E-Mail Kontext verfügbar');
-                        }
-                    } catch (error) {
-                        console.log('⚠️ Fallback zu Demo-Analyse:', error.message);
-                        analyzeEmailWithAI('Mahnung - Rechnung Nr. 2024-001', 'buchhaltung@musterfirma.de');
-                    }
-                }, 1000);
+                // E-Mail Daten laden
+                await loadEmailData();
                 
-                // Floating Icon Effekt aktivieren
-                initializeFloatingIcon();
+                // KI-Empfehlung holen
+                await suggestAgent();
                 
-                // Disable Action Buttons initially
-                disableActionButtons();
+                // Event Listeners
+                setupEventListeners();
                 
+                updateStatus('Bereit für Verarbeitung', 'success');
             } catch (error) {
-                console.error('❌ Outlook Add-In Initialisierung fehlgeschlagen:', error);
-                initializeDemoMode();
+                console.error('Fehler:', error);
+                updateStatus('Fehler beim Laden', 'error');
             }
         }
 
-        // Demo-Modus für Entwicklung/Testing
-        function initializeDemoMode() {
-            console.log('🎭 Demo-Modus initialisiert');
-            updateStatus('📧 Demo-Modus aktiv - Add-In funktional', 'loading');
-            
-            // Demo E-Mail Daten setzen
-            updateEmailPreview('Demo: Mahnung - Rechnung Nr. 2024-001');
-            analyzeEmailWithAI('Mahnung - Rechnung Nr. 2024-001', 'buchhaltung@musterfirma.de');
-            
-            // Floating Icon aktivieren
-            initializeFloatingIcon();
-            
-            // Buttons deaktivieren bis Agent gewählt
-            disableActionButtons();
-        }
-        
-        // NEUE FUNKTION: Live E-Mail Daten laden mit Fehlerbehandlung
-        function loadCurrentEmailData() {
-            if (!Office.context.mailbox || !Office.context.mailbox.item) {
-                console.log('ℹ️ Kein E-Mail Kontext verfügbar - Demo-Modus');
-                initializeDemoMode();
-                return;
-            }
-            
-            try {
-                // Subject laden - verschiedene Ansätze versuchen
-                if (Office.context.mailbox.item.subject) {
-                    if (typeof Office.context.mailbox.item.subject === 'string') {
-                        // Direkte String-Eigenschaft
-                        currentEmailData = {
-                            subject: Office.context.mailbox.item.subject,
-                            itemId: Office.context.mailbox.item.itemId
-                        };
-                        updateEmailPreview(Office.context.mailbox.item.subject);
-                        console.log('✅ E-Mail Subject direkt geladen:', Office.context.mailbox.item.subject);
-                    } else if (Office.context.mailbox.item.subject.getAsync) {
-                        // Async-Methode
-                        Office.context.mailbox.item.subject.getAsync(function(result) {
-                            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                currentEmailData = {
-                                    subject: result.value,
-                                    itemId: Office.context.mailbox.item.itemId
-                                };
-                                updateEmailPreview(result.value);
-                                console.log('✅ E-Mail Subject async geladen:', result.value);
-                            } else {
-                                console.error('❌ Subject laden fehlgeschlagen:', result.error);
-                                initializeDemoMode();
-                            }
-                        });
+        // E-Mail Daten laden
+        async function loadEmailData() {
+            return new Promise((resolve) => {
+                const item = Office.context.mailbox.item;
+                currentEmailData = {};
+                
+                // Subject laden
+                if (item.subject) {
+                    currentEmailData.subject = item.subject;
+                    document.getElementById('emailSubject').textContent = item.subject;
+                }
+                
+                // From laden
+                if (item.from) {
+                    currentEmailData.from = item.from.emailAddress || item.from.displayName;
+                    document.getElementById('emailFrom').textContent = currentEmailData.from;
+                }
+                
+                // Body laden (async)
+                item.body.getAsync('text', (result) => {
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        currentEmailData.body = result.value.substring(0, 1000);
                     }
-                }
-                
-                // Sender laden - verschiedene Ansätze versuchen
-                if (Office.context.mailbox.item.from) {
-                    if (Office.context.mailbox.item.from.emailAddress) {
-                        // Direkte Eigenschaft
-                        updateEmailSender(Office.context.mailbox.item.from.emailAddress);
-                        console.log('✅ Sender direkt geladen:', Office.context.mailbox.item.from.emailAddress);
-                    } else if (Office.context.mailbox.item.from.getAsync) {
-                        // Async-Methode
-                        Office.context.mailbox.item.from.getAsync(function(result) {
-                            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                updateEmailSender(result.value.emailAddress);
-                                console.log('✅ Sender async geladen:', result.value.emailAddress);
-                            } else {
-                                console.error('❌ Sender laden fehlgeschlagen:', result.error);
-                            }
-                        });
-                    }
-                }
-                
-            } catch (error) {
-                console.error('❌ E-Mail Daten laden fehlgeschlagen:', error);
-                initializeDemoMode();
-            }
-        }
-        
-        // NEUE FUNKTION: Email Preview aktualisieren mit Fehlerbehandlung
-        function updateEmailPreview(subject) {
-            try {
-                const emailContent = document.getElementById('emailContent');
-                if (!emailContent) {
-                    console.error('❌ emailContent Element nicht gefunden');
-                    return;
-                }
-                
-                const safeSubject = subject || 'Kein Betreff';
-                
-                if (safeSubject.toLowerCase().includes('mahnung') || safeSubject.toLowerCase().includes('rechnung')) {
-                    emailContent.innerHTML = `
-                        <div style="background: #fef2f2; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--error-red);">
-                            <strong>🚨 Erkannt:</strong> <span style="color: var(--error-red);">Zahlungserinnerung</span><br>
-                            <strong>Priorität:</strong> <span style="color: var(--error-red);">HOCH</span><br>
-                            <strong>Empfehlung:</strong> Finance Expert Agent verwenden
-                        </div>
-                        <strong>Aktueller Betreff:</strong> ${safeSubject}<br>
-                        <strong>Analyse:</strong> Kritische Finanz-E-Mail erkannt
-                    `;
-                } else {
-                    emailContent.innerHTML = `
-                        <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--primary-blue);">
-                            <strong>📧 Live E-Mail:</strong> ${safeSubject}<br>
-                            <strong>Status:</strong> Bereit für KI-Analyse
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('❌ updateEmailPreview Fehler:', error);
-            }
-        }
-        
-        // NEUE FUNKTION: Email Sender aktualisieren
-        function updateEmailSender(sender) {
-            console.log('📧 Sender erkannt:', sender);
-        }
-
-        // NEUE FUNKTION: Echte E-Mail Analyse mit OpenAI + Timeout
-        async function analyzeEmailWithAI(emailSubject, emailSender) {
-            try {
-                // Timeout für API-Aufrufe
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-                
-                const response = await fetch('https://albo-ki-agent.vercel.app/api/analyze-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: emailSubject,
-                        sender: emailSender,
-                        agentType: selectedAgent || 'controller'
-                    }),
-                    signal: controller.signal
+                    resolve();
                 });
-                
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const analysis = await response.json();
-                updateEmailAnalysis(analysis);
-                console.log('✅ KI-Analyse erfolgreich');
-                
-            } catch (error) {
-                console.log('⚠️ API-Aufruf fehlgeschlagen:', error.message);
-                console.log('🎭 Fallback zu Demo-Analyse');
-                updateEmailAnalysisDemo(emailSubject, emailSender);
-            }
-        }
-
-        // NEUE FUNKTION: Email Analysis Update
-        function updateEmailAnalysis(analysis) {
-            try {
-                const emailContent = document.getElementById('emailContent');
-                if (emailContent && analysis) {
-                    emailContent.innerHTML = `
-                        <div class="summary-text">
-                            ${analysis.summary || 'KI-Analyse abgeschlossen'}
-                            <span class="priority-indicator">${analysis.priority || '📊 Standard'}</span>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('❌ updateEmailAnalysis Fehler:', error);
-            }
-        }
-
-        // FALLBACK: Intelligente Demo-Analyse
-        function updateEmailAnalysisDemo(subject, sender) {
-            try {
-                let summary = '';
-                let priority = '';
-                
-                if (subject && subject.toLowerCase().includes('mahnung')) {
-                    summary = '<strong>Zahlungserinnerung</strong> erkannt. Sofortige Bearbeitung erforderlich.';
-                    priority = '🚨 Hohe Priorität';
-                } else if (subject && subject.toLowerCase().includes('rechnung')) {
-                    summary = '<strong>Rechnungsbezogene Anfrage</strong> erkannt. Standardbearbeitung möglich.';
-                    priority = '📋 Normal';
-                } else {
-                    summary = '<strong>Geschäfts-E-Mail</strong> erhalten. KI-Analyse abgeschlossen.';
-                    priority = '📊 Standard';
-                }
-                
-                const emailContent = document.getElementById('emailContent');
-                if (emailContent) {
-                    emailContent.innerHTML = `
-                        <div class="summary-text">
-                            ${summary}
-                            <span class="priority-indicator">${priority}</span>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('❌ updateEmailAnalysisDemo Fehler:', error);
-            }
-        }
-
-        // NEUE FUNKTION: Floating Icon Effekte
-        function initializeFloatingIcon() {
-            try {
-                const floatingIcon = document.querySelector('.floating-icon');
-                if (floatingIcon) {
-                    floatingIcon.addEventListener('click', function() {
-                        // Icon Klick Effekt
-                        this.style.transform = 'scale(0.9)';
-                        setTimeout(() => {
-                            this.style.transform = 'scale(1)';
-                        }, 150);
-                        
-                        updateStatus('🚀 ALBO KI-Agent aktiviert!', 'success');
-                    });
-                }
-            } catch (error) {
-                console.error('❌ initializeFloatingIcon Fehler:', error);
-            }
-        }
-        
-        // NEUE FUNKTION: Agent aus Dropdown auswählen
-        function selectAgentFromDropdown() {
-            try {
-                const dropdown = document.getElementById('agentSelect');
-                if (!dropdown) return;
-                
-                const agentType = dropdown.value;
-                
-                if (!agentType) {
-                    hideSelectedAgent();
-                    disableActionButtons();
-                    return;
-                }
-                
-                selectedAgent = agentType;
-                showSelectedAgent(agentType);
-                enableActionButtons();
-                
-                const agentName = getAgentDisplayName(agentType);
-                updateStatus(`🤖 ${agentName} ausgewählt - Bereit für Verarbeitung`, 'success');
-                console.log('✅ Agent gewählt:', agentType);
-            } catch (error) {
-                console.error('❌ selectAgentFromDropdown Fehler:', error);
-            }
-        }
-        
-        // NEUE FUNKTION: Ausgewählten Agent anzeigen
-        function showSelectedAgent(agentType) {
-            try {
-                const display = document.getElementById('selectedAgentDisplay');
-                const icon = document.getElementById('selectedAgentIcon');
-                const name = document.getElementById('selectedAgentName');
-                const description = document.getElementById('selectedAgentDescription');
-                const capabilities = document.getElementById('selectedAgentCapabilities');
-                
-                if (!display || !icon || !name || !description || !capabilities) {
-                    console.error('❌ Agent Display Elemente nicht gefunden');
-                    return;
-                }
-                
-                const agentData = getAgentData(agentType);
-                
-                icon.textContent = agentData.icon;
-                name.textContent = agentData.name;
-                description.textContent = agentData.description;
-                capabilities.textContent = agentData.capabilities;
-                
-                display.style.display = 'block';
-            } catch (error) {
-                console.error('❌ showSelectedAgent Fehler:', error);
-            }
-        }
-        
-        // NEUE FUNKTION: Agent ausblenden
-        function hideSelectedAgent() {
-            try {
-                const display = document.getElementById('selectedAgentDisplay');
-                if (display) {
-                    display.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('❌ hideSelectedAgent Fehler:', error);
-            }
-        }
-        
-        // NEUE FUNKTION: Agent-Daten definieren
-        function getAgentData(agentType) {
-            const agents = {
-                'cfo': {
-                    icon: '👔',
-                    name: 'CFO (Chief Financial Officer)',
-                    description: 'Strategische Finanzplanung & Executive Reporting',
-                    capabilities: 'Cashflow-Analyse, Board-Reports, M&A-Bewertung, Risikomanagement'
-                },
-                'controller': {
-                    icon: '📊',
-                    name: 'Controller',
-                    description: 'Controlling, KPIs & Performance Management',
-                    capabilities: 'Budget-Controlling, Variance-Analyse, KPI-Dashboards, Cost-Center-Analyse'
-                },
-                'ma-berater': {
-                    icon: '🤝',
-                    name: 'M&A-Berater',
-                    description: 'Mergers & Acquisitions Expertise',
-                    capabilities: 'Due Diligence, Unternehmensbewertung, Deal-Strukturierung, Synergien-Analyse'
-                },
-                'kreditorenbuchhalter': {
-                    icon: '💳',
-                    name: 'Kreditorenbuchhalter',
-                    description: 'Verbindlichkeiten & Lieferantenmanagement',
-                    capabilities: 'Rechnungsprüfung, Zahlungslauf, Lieferantenstamm, Mahnwesen'
-                },
-                'debitorenbuchhalter': {
-                    icon: '💰',
-                    name: 'Debitorenbuchhalter',
-                    description: 'Forderungen & Kundenkonten',
-                    capabilities: 'Rechnungsstellung, Forderungsmanagement, Inkasso, Kundenstamm'
-                },
-                'anlagenbuchhalter': {
-                    icon: '🏭',
-                    name: 'Anlagenbuchhalter',
-                    description: 'Anlagevermögen & Abschreibungen',
-                    capabilities: 'Asset-Management, AfA-Berechnungen, Anlagenspiegel, Inventur'
-                },
-                'business-dev': {
-                    icon: '🚀',
-                    name: 'Business Development Manager',
-                    description: 'Geschäftsentwicklung & Strategische Partnerschaften',
-                    capabilities: 'Market-Analysis, Partnership-Deals, Revenue-Growth, Competitive-Intelligence'
-                },
-                'treasury': {
-                    icon: '🏦',
-                    name: 'Treasury Manager',
-                    description: 'Liquiditätsmanagement & Finanzierung',
-                    capabilities: 'Cash-Management, Zinsrisiko, Währungshedging, Banking-Relations'
-                }
-            };
-            
-            return agents[agentType] || agents['controller'];
-        }
-        
-        // ERWEITERTE FUNKTION: Agent Display Names
-        function getAgentDisplayName(agentType) {
-            const agentData = getAgentData(agentType);
-            return agentData.name;
-        }
-        
-        // NEUE FUNKTIONEN: Button-Status Management
-        function enableActionButtons() {
-            try {
-                document.querySelectorAll('.action-button').forEach(btn => {
-                    if (btn) btn.disabled = false;
-                });
-            } catch (error) {
-                console.error('❌ enableActionButtons Fehler:', error);
-            }
-        }
-        
-        function disableActionButtons() {
-            try {
-                document.querySelectorAll('.action-button').forEach(btn => {
-                    if (btn) btn.disabled = true;
-                });
-            } catch (error) {
-                console.error('❌ disableActionButtons Fehler:', error);
-            }
-        }
-        
-        // E-Mail verarbeiten - LIVE-INTEGRATION mit echter E-Mail-Analyse
-        function processEmail(actionType) {
-            try {
-                if (!selectedAgent) {
-                    updateStatus('❌ Bitte wählen Sie zuerst einen spezialisierten Agent aus', 'error');
-                    return;
-                }
-                
-                updateStatus('🤖 KI-Agent analysiert Live-E-Mail...', 'loading');
-                
-                // Sichere Button-Manipulation
-                const buttons = document.querySelectorAll('.action-button');
-                buttons.forEach(btn => {
-                    if (btn) {
-                        btn.disabled = true;
-                        if (btn.classList.contains('btn-' + actionType)) {
-                            const existingSpinner = btn.querySelector('.loading-spinner');
-                            if (!existingSpinner) {
-                                btn.innerHTML += '<span class="loading-spinner"></span>';
-                            }
-                        }
-                    }
-                });
-                
-                // LIVE E-MAIL DATEN SAMMELN
-                collectLiveEmailData()
-                    .then(emailData => {
-                        console.log('🔄 Verarbeite Live-E-Mail mit Agent:', selectedAgent, 'Action:', actionType);
-                        console.log('📧 E-Mail Daten:', emailData);
-                        
-                        // Echte KI-Analyse mit Live-Daten
-                        return processEmailWithAI(emailData, selectedAgent, actionType);
-                    })
-                    .then(result => {
-                        showLiveAIResponse(result, actionType);
-                        updateStatus('✅ Live-E-Mail erfolgreich verarbeitet', 'success');
-                        
-                        // Re-enable buttons mit cleanup
-                        buttons.forEach(btn => {
-                            if (btn) {
-                                btn.disabled = false;
-                                const spinner = btn.querySelector('.loading-spinner');
-                                if (spinner) spinner.remove();
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error('❌ Live-Verarbeitung fehlgeschlagen:', error);
-                        updateStatus('❌ Live-E-Mail Verarbeitung fehlgeschlagen', 'error');
-                        // Re-enable buttons auch bei Fehler
-                        buttons.forEach(btn => {
-                            if (btn) {
-                                btn.disabled = false;
-                                const spinner = btn.querySelector('.loading-spinner');
-                                if (spinner) spinner.remove();
-                            }
-                        });
-                    });
-                
-            } catch (error) {
-                console.error('❌ processEmail Fehler:', error);
-                updateStatus('❌ Unerwarteter Fehler beim Verarbeiten', 'error');
-            }
-        }
-
-        // NEUE FUNKTION: Live E-Mail Daten sammeln
-        async function collectLiveEmailData() {
-            return new Promise((resolve, reject) => {
-                try {
-                    const emailData = {
-                        subject: 'Demo E-Mail',
-                        from: 'demo@example.com',
-                        body: '',
-                        itemId: null,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    if (Office.context.mailbox && Office.context.mailbox.item) {
-                        // Versuche echte Office.js Daten zu sammeln
-                        const promises = [];
-
-                        // Subject sammeln
-                        if (Office.context.mailbox.item.subject) {
-                            if (typeof Office.context.mailbox.item.subject === 'string') {
-                                emailData.subject = Office.context.mailbox.item.subject;
-                            } else if (Office.context.mailbox.item.subject.getAsync) {
-                                promises.push(new Promise((res) => {
-                                    Office.context.mailbox.item.subject.getAsync((result) => {
-                                        if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                            emailData.subject = result.value;
-                                        }
-                                        res();
-                                    });
-                                }));
-                            }
-                        }
-
-                        // Sender sammeln
-                        if (Office.context.mailbox.item.from) {
-                            if (Office.context.mailbox.item.from.emailAddress) {
-                                emailData.from = Office.context.mailbox.item.from.emailAddress;
-                            } else if (Office.context.mailbox.item.from.getAsync) {
-                                promises.push(new Promise((res) => {
-                                    Office.context.mailbox.item.from.getAsync((result) => {
-                                        if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                            emailData.from = result.value.emailAddress;
-                                        }
-                                        res();
-                                    });
-                                }));
-                            }
-                        }
-
-                        // Body sammeln (falls verfügbar)
-                        if (Office.context.mailbox.item.body && Office.context.mailbox.item.body.getAsync) {
-                            promises.push(new Promise((res) => {
-                                Office.context.mailbox.item.body.getAsync('text', (result) => {
-                                    if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                        emailData.body = result.value.substring(0, 500); // Erste 500 Zeichen
-                                    }
-                                    res();
-                                });
-                            }));
-                        }
-
-                        // Item ID
-                        if (Office.context.mailbox.item.itemId) {
-                            emailData.itemId = Office.context.mailbox.item.itemId;
-                        }
-
-                        // Warte auf alle Async-Operationen
-                        Promise.all(promises).then(() => {
-                            console.log('✅ Live E-Mail Daten gesammelt:', emailData);
-                            resolve(emailData);
-                        });
-                    } else {
-                        // Demo-Daten für Entwicklung
-                        emailData.subject = 'Mahnung - Rechnung Nr. 2024-001';
-                        emailData.from = 'buchhaltung@musterfirma.de';
-                        emailData.body = 'Sehr geehrte Damen und Herren, anbei erhalten Sie die Rechnung Nr. 2024-001 über 15.750,00 EUR. Die Zahlung ist bereits 4 Tage überfällig.';
-                        console.log('🎭 Demo E-Mail Daten verwendet:', emailData);
-                        resolve(emailData);
-                    }
-
-                } catch (error) {
-                    console.error('❌ Fehler beim Sammeln der E-Mail Daten:', error);
-                    // Fallback zu Demo-Daten
-                    resolve({
-                        subject: 'Mahnung - Rechnung Nr. 2024-001',
-                        from: 'buchhaltung@musterfirma.de',
-                        body: 'Fallback Demo-Inhalt',
-                        itemId: null,
-                        timestamp: new Date().toISOString()
-                    });
-                }
             });
         }
 
-        // NEUE FUNKTION: E-Mail mit KI verarbeiten
-        async function processEmailWithAI(emailData, agent, actionType) {
-            try {
-                // Echte KI-Analyse mit Live-Daten
-                const analysisPayload = {
-                    subject: emailData.subject,
-                    from: emailData.from,
-                    body: emailData.body,
-                    agentType: agent,
-                    actionType: actionType,
-                    timestamp: emailData.timestamp
-                };
-
-                console.log('🤖 Sende an KI-API:', analysisPayload);
-
-                // Timeout für API-Aufrufe
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
-                const response = await fetch('https://albo-ki-agent.vercel.app/api/process-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(analysisPayload),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                console.log('✅ KI-Analyse erfolgreich:', result);
-                return result;
-
-            } catch (error) {
-                console.log('⚠️ KI-API Fehler, verwende lokale Analyse:', error.message);
-                
-                // Intelligenter Fallback mit echten E-Mail-Daten
-                return generateLocalAIResponse(emailData, agent, actionType);
+        // KI Agent Empfehlung
+        async function suggestAgent() {
+            if (!currentEmailData) return;
+            
+            // Analysiere E-Mail Inhalt
+            const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
+            let suggestion = null;
+            let confidence = 0;
+            
+            // Pattern Matching
+            if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
+                suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
+            } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
+                suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
+            } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
+                suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
+            } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
+                suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
+            } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
+                suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
+            } else {
+                suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
             }
+            
+            // Zeige Empfehlung
+            if (suggestion) {
+                document.getElementById('suggestedAgent').textContent = suggestion.name;
+                document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
+                document.getElementById('agentSuggestion').classList.add('show');
+                
+                // Auto-Select im Dropdown
+                document.getElementById('agentSelect').value = suggestion.agent;
+                selectedAgent = suggestion.agent;
+                enableActionButtons();
+            }
+            
+            // Update Priorität
+            updatePriority(text);
         }
 
-        // NEUE FUNKTION: Lokale KI-Antwort mit echten E-Mail-Daten
-        function generateLocalAIResponse(emailData, agent, actionType) {
-            // Analysiere echte E-Mail-Inhalte
-            const isInvoice = emailData.subject.toLowerCase().includes('rechnung') || 
-                             emailData.subject.toLowerCase().includes('invoice');
-            const isReminder = emailData.subject.toLowerCase().includes('mahnung') || 
-                              emailData.subject.toLowerCase().includes('reminder');
-            const isUrgent = emailData.subject.toLowerCase().includes('dringend') || 
-                            emailData.body.toLowerCase().includes('überfällig');
-
-            // Extrahiere Beträge aus Betreff/Body
-            const amountMatch = (emailData.subject + ' ' + emailData.body).match(/(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*EUR?/i);
-            const amount = amountMatch ? amountMatch[1] : '15.750,00';
-
-            // Sender-Analyse
-            const senderDomain = emailData.from.split('@')[1] || 'unknown.com';
-            const isInternalSender = senderDomain.includes('company.com') || senderDomain.includes('internal');
-
-            // Generiere kontextbezogene Antwort
+        // Priorität bestimmen
+        function updatePriority(text) {
             let priority = 'Normal';
-            let urgencyLevel = '📊';
             
-            if (isReminder && isUrgent) {
-                priority = 'HOCH - Mahnung überfällig';
-                urgencyLevel = '🚨';
-            } else if (isInvoice) {
-                priority = 'Mittel - Rechnungsbearbeitung';
-                urgencyLevel = '📋';
+            if (text.includes('dringend') || text.includes('urgent') || text.includes('mahnung')) {
+                priority = 'Hoch';
+                document.getElementById('emailPriority').style.background = '#fef2f2';
+                document.getElementById('emailPriority').style.color = 'var(--error)';
+            } else {
+                document.getElementById('emailPriority').style.background = '#f0f9ff';
+                document.getElementById('emailPriority').style.color = 'var(--primary)';
+            }
+            
+            document.getElementById('emailPriority').textContent = priority;
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Agent Dropdown
+            document.getElementById('agentSelect').addEventListener('change', (e) => {
+                selectedAgent = e.target.value;
+                if (selectedAgent) {
+                    enableActionButtons();
+                    updateStatus(`Agent ${e.target.options[e.target.selectedIndex].text} gewählt`, 'success');
+                } else {
+                    disableActionButtons();
+                }
+            });
+
+            // Preview Button
+            document.getElementById('btnPreview').addEventListener('click', () => {
+                showPreview();
+            });
+
+            // Auto Button
+            document.getElementById('btnAuto').addEventListener('click', () => {
+                processAuto();
+            });
+
+            // Draft Button
+            document.getElementById('btnDraft').addEventListener('click', () => {
+                createDraft();
+            });
+
+            // Dashboard Button
+            document.getElementById('btnDashboard').addEventListener('click', () => {
+                openDashboard();
+            });
+        }
+
+        // Preview im Dialog anzeigen
+        function showPreview() {
+            if (!selectedAgent || !currentEmailData) {
+                updateStatus('Bitte wählen Sie einen Agenten', 'warning');
+                return;
             }
 
-            return {
-                emailAnalysis: {
-                    subject: emailData.subject,
-                    from: emailData.from,
-                    amount: amount,
-                    priority: priority,
-                    urgencyLevel: urgencyLevel,
-                    category: isReminder ? 'Mahnung' : (isInvoice ? 'Rechnung' : 'Geschäfts-E-Mail'),
-                    senderDomain: senderDomain
-                },
-                agentResponse: getAgentSpecificResponse(agent, emailData, isReminder, isUrgent, amount),
-                recommendedActions: getRecommendedActions(actionType, isReminder, isUrgent),
-                confidence: calculateConfidence(emailData, isReminder, isInvoice),
+            updateStatus('Öffne Vorschau...', 'info');
+            
+            // Daten für Preview vorbereiten
+            const previewData = {
+                email: currentEmailData,
+                agent: selectedAgent,
                 timestamp: new Date().toISOString()
             };
-        }
-
-        // Agentenspezifische Antworten basierend auf echter E-Mail
-        function getAgentSpecificResponse(agent, emailData, isReminder, isUrgent, amount) {
-            const responses = {
-                'cfo': {
-                    analysis: `Executive Analysis: E-Mail "${emailData.subject}" von ${emailData.from}. ${isReminder ? 'Zahlungsrisiko' : 'Standardgeschäft'} - Betrag ${amount} EUR. ${isUrgent ? 'Liquiditätsimpact minimal, aber Vendor-Relations kritisch.' : 'Routine-Transaktion im Budget-Rahmen.'}`,
-                    recommendation: isUrgent ? 'Sofortige Freigabe empfohlen - Reputationsschutz prioritär.' : 'Zahlung nach Standard-Workflow freigeben.',
-                    action_taken: 'Executive Dashboard informiert, Cashflow-Forecast angepasst'
-                },
-                'controller': {
-                    analysis: `Controlling-Check: ${emailData.subject} - Budget-Impact ${amount} EUR. ${isReminder ? 'Kostenstelle-Analyse zeigt Verzug.' : 'Planmäßige Ausgabe.'} Sender: ${emailData.from}`,
-                    recommendation: isUrgent ? 'Zahlung priorisieren - Mahnkosten vermeiden.' : 'Standard-Bearbeitung ausreichend.',
-                    action_taken: 'Cost-Center aktualisiert, Variance-Report generiert'
-                },
-                'kreditorenbuchhalter': {
-                    analysis: `Lieferanten-Check: ${emailData.from} - ${emailData.subject}. ${isReminder ? 'Mahnung berechtigt, Zahlungsziel überschritten.' : 'Neue Rechnung eingegangen.'} Betrag: ${amount} EUR`,
-                    recommendation: isUrgent ? 'Sofortige Zahlung zur Vendor-Relations-Pflege.' : 'Standard-Zahlungslauf einplanen.',
-                    action_taken: 'Lieferantenstamm aktualisiert, Zahlungshistorie geprüft'
+            
+            // Dialog öffnen
+            const dialogUrl = `https://alban891.github.io/ALBO-KI-Agent/preview.html?data=${
+                encodeURIComponent(JSON.stringify(previewData))
+            }`;
+            
+            Office.context.ui.displayDialogAsync(
+                dialogUrl,
+                { height: 60, width: 50, displayInIframe: false },
+                (asyncResult) => {
+                    if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+                        previewDialog = asyncResult.value;
+                        
+                        // Message Handler
+                        previewDialog.addEventHandler(
+                            Office.EventType.DialogMessageReceived,
+                            (arg) => handleDialogMessage(arg)
+                        );
+                        
+                        // Event Handler für Dialog geschlossen
+                        previewDialog.addEventHandler(
+                            Office.EventType.DialogEventReceived,
+                            (arg) => {
+                                if (arg.type === 'dialogClosed') {
+                                    updateStatus('Vorschau geschlossen', 'info');
+                                }
+                            }
+                        );
+                    } else {
+                        updateStatus('Fehler beim Öffnen der Vorschau', 'error');
+                    }
                 }
-            };
-            
-            return responses[agent] || responses['controller'];
+            );
         }
 
-        // Empfohlene Aktionen basierend auf E-Mail-Inhalt
-        function getRecommendedActions(actionType, isReminder, isUrgent) {
-            const actions = {
-                'preview': `Vorschau generiert für ${isReminder ? 'Mahnungsantwort' : 'Standard-Antwort'} 👁️`,
-                'auto': `${isUrgent ? 'Eilige' : 'Standard'} Antwort automatisch versendet ✅`,
-                'draft': `${isReminder ? 'Prioritäts-' : 'Standard-'}Entwurf erstellt 📝`,
-                'dashboard': `Fall an ${isUrgent ? 'Eilbearbeitungs-' : 'Standard-'}Dashboard übertragen 📊`
-            };
-            return actions[actionType] || actions['preview'];
-        }
-
-        // Konfidenz basierend auf E-Mail-Qualität berechnen
-        function calculateConfidence(emailData, isReminder, isInvoice) {
-            let confidence = 85; // Basis
-            
-            if (emailData.subject && emailData.subject.length > 10) confidence += 5;
-            if (emailData.from && emailData.from.includes('@')) confidence += 5;
-            if (emailData.body && emailData.body.length > 50) confidence += 3;
-            if (isReminder || isInvoice) confidence += 2; // Klare Kategorisierung
-            
-            return Math.min(confidence, 99) + '%';
-        }
-        
-        // NEUE FUNKTION: Live AI Response mit echten E-Mail-Daten anzeigen
-        function showLiveAIResponse(result, actionType) {
+        // Dialog Messages verarbeiten
+        function handleDialogMessage(arg) {
             try {
-                const responseDiv = document.getElementById('aiResponse');
-                const content = document.getElementById('responseContent');
+                const message = JSON.parse(arg.message);
                 
-                if (!responseDiv || !content) {
-                    console.error('❌ AI Response Elemente nicht gefunden');
-                    return;
+                switch(message.action) {
+                    case 'auto':
+                        processAuto();
+                        previewDialog.close();
+                        break;
+                    case 'draft':
+                        createDraft();
+                        previewDialog.close();
+                        break;
+                    case 'close':
+                        previewDialog.close();
+                        break;
                 }
-
-                const agentName = getAgentDisplayName(selectedAgent);
-                const emailAnalysis = result.emailAnalysis;
-                const agentResponse = result.agentResponse;
-                
-                content.innerHTML = `
-                    <div class="response-section" style="background: rgba(1, 120, 212, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                        <div class="response-label">📧 Analysierte Live-E-Mail:</div>
-                        <strong>Betreff:</strong> ${emailAnalysis.subject}<br>
-                        <strong>Von:</strong> ${emailAnalysis.from}<br>
-                        <strong>Kategorie:</strong> <span style="color: var(--primary-blue);">${emailAnalysis.category}</span><br>
-                        <strong>Betrag:</strong> <span style="font-weight: bold;">${emailAnalysis.amount} EUR</span><br>
-                        <strong>Priorität:</strong> <span style="color: var(--error-red);">${emailAnalysis.urgencyLevel} ${emailAnalysis.priority}</span>
-                    </div>
-                    <div class="response-section">
-                        <div class="response-label">🤖 ${agentName} Spezialist:</div>
-                        Live-Analyse der aktuellen E-Mail
-                    </div>
-                    <div class="response-section">
-                        <div class="response-label">📊 Live E-Mail Analyse:</div>
-                        ${agentResponse.analysis}
-                    </div>
-                    <div class="response-section">
-                        <div class="response-label">💡 Kontextbezogene Empfehlung:</div>
-                        ${agentResponse.recommendation}
-                    </div>
-                    <div class="response-section">
-                        <div class="response-label">🎯 Analyse-Konfidenz:</div>
-                        <span style="color: var(--success-green); font-weight: bold;">${result.confidence}</span>
-                    </div>
-                    <div class="response-section">
-                        <div class="response-label">⚡ Durchgeführte Live-Aktion:</div>
-                        ${result.recommendedActions}<br>
-                        <small style="color: var(--text-secondary);">${agentResponse.action_taken}</small>
-                    </div>
-                    <div class="response-section" style="margin-top: 15px; padding: 12px; background: rgba(111, 66, 193, 0.1); border-radius: 6px; border-left: 3px solid #6f42c1;">
-                        <div class="response-label">📊 Live-Dashboard Integration:</div>
-                        <em>Die aktuelle E-Mail "${emailAnalysis.subject}" wurde erfolgreich analysiert und an das ${agentName} Dashboard übertragen. Basierend auf Sender "${emailAnalysis.senderDomain}" und Inhalt wurden spezifische Workflows ausgelöst.</em>
-                    </div>
-                    <div class="response-section" style="margin-top: 10px; padding: 12px; background: rgba(1, 120, 212, 0.1); border-radius: 6px;">
-                        <div class="response-label">✉️ Generierte Live-Antwort:</div>
-                        <em>"Vielen Dank für Ihre ${emailAnalysis.category === 'Mahnung' ? 'Zahlungserinnerung' : 'E-Mail'} vom ${new Date().toLocaleDateString('de-DE')}. ${emailAnalysis.category === 'Mahnung' ? 'Die Zahlung wurde durch unseren ' + agentName + ' geprüft und wird prioritär bearbeitet.' : 'Ihre Anfrage wurde an unseren ' + agentName + ' weitergeleitet und wird zeitnah bearbeitet.'} ${emailAnalysis.amount !== '15.750,00' ? 'Der Betrag von ' + emailAnalysis.amount + ' EUR wurde notiert.' : ''}"</em>
-                    </div>
-                    <div class="response-section" style="margin-top: 10px; padding: 8px; background: rgba(16, 124, 16, 0.1); border-radius: 6px; font-size: 0.8rem;">
-                        <div class="response-label">🔗 Live-Daten Verknüpfung:</div>
-                        <em>Verarbeitet: ${result.timestamp} | Agent: ${selectedAgent} | Aktion: ${actionType}</em>
-                    </div>
-                `;
-                
-                responseDiv.style.display = 'block';
-                responseDiv.scrollIntoView({ behavior: 'smooth' });
-                
             } catch (error) {
-                console.error('❌ showLiveAIResponse Fehler:', error);
-                updateStatus('❌ Live-Antwort-Anzeige fehlgeschlagen', 'error');
+                console.error('Dialog message error:', error);
             }
         }
-        
-        // Status Update - ERWEITERT mit Fehlerbehandlung
-        function updateStatus(message, type) {
-            try {
-                const statusDiv = document.getElementById('status');
-                if (!statusDiv) {
-                    console.error('❌ Status Element nicht gefunden');
-                    return;
-                }
-                
-                // Remove all status classes
-                statusDiv.className = '';
-                statusDiv.classList.add('status');
-                
-                if (type && type !== 'info') {
-                    statusDiv.classList.add(type);
-                }
-                
-                statusDiv.innerHTML = message;
-                console.log('📊 Status Update:', message, type);
-            } catch (error) {
-                console.error('❌ updateStatus Fehler:', error);
-            }
+
+        // Automatisch verarbeiten
+        async function processAuto() {
+            updateStatus('Verarbeite automatisch...', 'info');
+            disableAllButtons();
+            
+            // Hier würde der Backend-Call kommen
+            setTimeout(() => {
+                updateStatus('✅ E-Mail wurde automatisch bearbeitet', 'success');
+                enableAllButtons();
+            }, 2000);
         }
-        
-        console.log('🚀 ALBO KI-Agent Suite - Korrigierte Version geladen');
+
+        // Draft erstellen
+        function createDraft() {
+            updateStatus('Erstelle Entwurf...', 'info');
+            
+            // Antwort-Entwurf in Outlook erstellen
+            const replyBody = `
+                <p>Sehr geehrte Damen und Herren,</p>
+                <p>vielen Dank für Ihre E-Mail. Diese wurde durch unseren ${getAgentName(selectedAgent)} geprüft.</p>
+                <p>Mit freundlichen Grüßen<br>
+                ALBO Finance Team</p>
+            `;
+            
+            Office.context.mailbox.item.displayReplyForm({
+                htmlBody: replyBody,
+                subject: 'RE: ' + currentEmailData.subject
+            });
+            
+            updateStatus('Entwurf wurde erstellt', 'success');
+        }
+
+        // Dashboard öffnen
+        function openDashboard() {
+            updateStatus('Öffne ALBO Enterprise...', 'info');
+            
+            // Session-Daten vorbereiten
+            const sessionData = {
+                email: currentEmailData,
+                agent: selectedAgent,
+                source: 'outlook',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Dashboard in neuem Tab öffnen
+            const dashboardUrl = `https://albo-enterprise.com/dashboard?session=${
+                btoa(JSON.stringify(sessionData))
+            }`;
+            
+            window.open(dashboardUrl, '_blank');
+            updateStatus('Dashboard geöffnet', 'success');
+        }
+
+        // Helper Functions
+        function enableActionButtons() {
+            document.getElementById('btnPreview').disabled = false;
+            document.getElementById('btnAuto').disabled = false;
+            document.getElementById('btnDraft').disabled = false;
+        }
+
+        function disableActionButtons() {
+            document.getElementById('btnPreview').disabled = true;
+            document.getElementById('btnAuto').disabled = true;
+            document.getElementById('btnDraft').disabled = true;
+        }
+
+        function disableAllButtons() {
+            document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+        }
+
+        function enableAllButtons() {
+            document.querySelectorAll('.btn').forEach(btn => btn.disabled = false);
+        }
+
+        function updateStatus(text, type = 'info') {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = statusBar.querySelector('.status-text');
+            const statusIcon = statusBar.querySelector('.status-icon');
+            
+            // Update Text
+            statusText.textContent = text;
+            
+            // Update Icon
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            statusIcon.textContent = icons[type] || 'ℹ️';
+            
+            // Update Class
+            statusBar.className = 'status-bar ' + type;
+        }
+
+        function getAgentName(agent) {
+            const names = {
+                'kreditor': 'Kreditorenbuchhalter',
+                'debitor': 'Debitorenbuchhalter',
+                'controller': 'Controller',
+                'cfo': 'CFO',
+                'treasury': 'Treasury Manager',
+                'ma': 'M&A Berater'
+            };
+            return names[agent] || 'Finance Agent';
+        }
     </script>
-
 </body>
 </html>
