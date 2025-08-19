@@ -419,6 +419,17 @@
     </div>
 
     <script>
+        // Backend Konfiguration
+        const CONFIG = {
+        // Für lokale Entwicklung
+        BACKEND_URL: 'https://localhost:3001',
+        
+        // Für Production (ändere später)
+        // BACKEND_URL: 'https://albo-backend.railway.app',
+        
+        // Tenant ID (später dynamisch)
+        TENANT_ID: 'demo_tenant'
+    };
         // Globale Variablen
         let currentEmailData = null;
         let selectedAgent = null;
@@ -483,41 +494,91 @@
         async function suggestAgent() {
             if (!currentEmailData) return;
             
-            // Analysiere E-Mail Inhalt
-            const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
-            let suggestion = null;
-            let confidence = 0;
-            
-            // Pattern Matching
-            if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
-                suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
-            } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
-                suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
-            } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
-                suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
-            } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
-                suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
-            } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
-                suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
-            } else {
-                suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
-            }
-            
-            // Zeige Empfehlung
-            if (suggestion) {
-                document.getElementById('suggestedAgent').textContent = suggestion.name;
-                document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
-                document.getElementById('agentSuggestion').classList.add('show');
-                
-                // Auto-Select im Dropdown
-                document.getElementById('agentSelect').value = suggestion.agent;
-                selectedAgent = suggestion.agent;
-                enableActionButtons();
-            }
-            
-            // Update Priorität
-            updatePriority(text);
+            try {
+                // Backend URL - ändere diese für Production
+                const BACKEND_URL = 'http://localhost:3001'; // Lokal
+                // const BACKEND_URL = 'https://dein-backend.railway.app'; // Production
+
+                // API Call zum Backend
+                const response = await fetch(`${BACKEND_URL}/api/suggest-agent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Tenant-ID': 'demo_tenant' // Später dynamisch
+                },
+                body: JSON.stringify({
+                    subject: currentEmailData.subject || '',
+                    body: currentEmailData.body || '',
+                    from: currentEmailData.from || ''
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
+        
+        const data = await response.json();
+        
+        if (data.success && data.suggestion) {
+            // Suggestion vom Backend verwenden
+            const suggestion = {
+                agent: data.suggestion.agent,
+                name: getAgentDisplayName(data.suggestion.agent),
+                confidence: data.suggestion.confidence
+            };
+            
+            // UI Update - genau wie vorher
+            document.getElementById('suggestedAgent').textContent = suggestion.name;
+            document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
+            document.getElementById('agentSuggestion').classList.add('show');
+            
+            // Auto-Select im Dropdown
+            document.getElementById('agentSelect').value = suggestion.agent;
+            selectedAgent = suggestion.agent;
+            enableActionButtons();
+            
+            console.log('✅ Agent-Empfehlung vom Backend:', suggestion);
+        }
+        
+    } catch (error) {
+        console.error('⚠️ Backend nicht erreichbar, nutze lokale Analyse:', error);
+        
+        // FALLBACK: Deine originale lokale Analyse
+        const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
+        let suggestion = null;
+        let confidence = 0;
+        
+        // Pattern Matching (dein originaler Code)
+        if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
+            suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
+        } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
+            suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
+        } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
+            suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
+        } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
+            suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
+        } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
+            suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
+        } else {
+            suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
+        }
+        
+        // Zeige Empfehlung
+        if (suggestion) {
+            document.getElementById('suggestedAgent').textContent = suggestion.name;
+            document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
+            document.getElementById('agentSuggestion').classList.add('show');
+            
+            // Auto-Select im Dropdown
+            document.getElementById('agentSelect').value = suggestion.agent;
+            selectedAgent = suggestion.agent;
+            enableActionButtons();
+        }
+    }
+    
+    // Update Priorität
+    updatePriority((currentEmailData.subject + ' ' + (currentEmailData.body || '')).toLowerCase());
+}
 
         // Priorität bestimmen
         function updatePriority(text) {
@@ -582,7 +643,9 @@
             const previewData = {
                 email: currentEmailData,
                 agent: selectedAgent,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                backendUrl: CONFIG.BACKEND_URL, 
+                tenantID: CONFIG.TENANT_ID
             };
             
             // Dialog öffnen
