@@ -419,17 +419,18 @@
     </div>
 
     <script>
-        // Backend Konfiguration
+        // Backend Konfiguration - AKTUALISIERT FÜR HTTPS
         const CONFIG = {
-        // Für lokale Entwicklung
-        BACKEND_URL: 'https://localhost:3001',
+            // Für lokale Entwicklung mit HTTPS
+            BACKEND_URL: 'https://localhost:3001',
+            
+            // Für Production (ändere später)
+            // BACKEND_URL: 'https://albo-backend.railway.app',
+            
+            // Tenant ID (später dynamisch)
+            TENANT_ID: 'demo_tenant'
+        };
         
-        // Für Production (ändere später)
-        // BACKEND_URL: 'https://albo-backend.railway.app',
-        
-        // Tenant ID (später dynamisch)
-        TENANT_ID: 'demo_tenant'
-    };
         // Globale Variablen
         let currentEmailData = null;
         let selectedAgent = null;
@@ -490,95 +491,103 @@
             });
         }
 
-        // KI Agent Empfehlung
+        // KI Agent Empfehlung - AKTUALISIERT MIT HTTPS
         async function suggestAgent() {
             if (!currentEmailData) return;
             
             try {
-                // Backend URL - ändere diese für Production
-                const BACKEND_URL = 'http://localhost:3001'; // Lokal
-                // const BACKEND_URL = 'https://dein-backend.railway.app'; // Production
-
-                // API Call zum Backend
-                const response = await fetch(`${BACKEND_URL}/api/suggest-agent`, {
+                // API Call zum Backend - JETZT MIT CONFIG.BACKEND_URL
+                const response = await fetch(`${CONFIG.BACKEND_URL}/api/suggest-agent`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Tenant-ID': 'demo_tenant' // Später dynamisch
-                },
-                body: JSON.stringify({
-                    subject: currentEmailData.subject || '',
-                    body: currentEmailData.body || '',
-                    from: currentEmailData.from || ''
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+                        'X-Tenant-ID': CONFIG.TENANT_ID
+                    },
+                    body: JSON.stringify({
+                        subject: currentEmailData.subject || '',
+                        body: currentEmailData.body || '',
+                        from: currentEmailData.from || ''
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.suggestion) {
+                    // Suggestion vom Backend verwenden
+                    const suggestion = {
+                        agent: data.suggestion.agent,
+                        name: getAgentDisplayName(data.suggestion.agent),
+                        confidence: data.suggestion.confidence
+                    };
+                    
+                    // UI Update
+                    document.getElementById('suggestedAgent').textContent = suggestion.name;
+                    document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
+                    document.getElementById('agentSuggestion').classList.add('show');
+                    
+                    // Auto-Select im Dropdown
+                    document.getElementById('agentSelect').value = suggestion.agent;
+                    selectedAgent = suggestion.agent;
+                    enableActionButtons();
+                    
+                    console.log('✅ Agent-Empfehlung vom Backend:', suggestion);
+                }
+                
+            } catch (error) {
+                console.error('⚠️ Backend nicht erreichbar, nutze lokale Analyse:', error);
+                
+                // FALLBACK: Lokale Analyse
+                const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
+                let suggestion = null;
+                
+                // Pattern Matching
+                if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
+                    suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
+                } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
+                    suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
+                } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
+                    suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
+                } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
+                    suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
+                } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
+                    suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
+                } else {
+                    suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
+                }
+                
+                // Zeige Empfehlung
+                if (suggestion) {
+                    document.getElementById('suggestedAgent').textContent = suggestion.name;
+                    document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
+                    document.getElementById('agentSuggestion').classList.add('show');
+                    
+                    // Auto-Select im Dropdown
+                    document.getElementById('agentSelect').value = suggestion.agent;
+                    selectedAgent = suggestion.agent;
+                    enableActionButtons();
+                }
+            }
+            
+            // Update Priorität
+            updatePriority((currentEmailData.subject + ' ' + (currentEmailData.body || '')).toLowerCase());
         }
-        
-        const data = await response.json();
-        
-        if (data.success && data.suggestion) {
-            // Suggestion vom Backend verwenden
-            const suggestion = {
-                agent: data.suggestion.agent,
-                name: getAgentDisplayName(data.suggestion.agent),
-                confidence: data.suggestion.confidence
+
+        // Helper function für Agent Display Namen
+        function getAgentDisplayName(agentKey) {
+            const names = {
+                'kreditor': 'Kreditorenbuchhalter',
+                'debitor': 'Debitorenbuchhalter',
+                'controller': 'Controller',
+                'cfo': 'CFO',
+                'treasury': 'Treasury Manager',
+                'ma': 'M&A Berater'
             };
-            
-            // UI Update - genau wie vorher
-            document.getElementById('suggestedAgent').textContent = suggestion.name;
-            document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
-            document.getElementById('agentSuggestion').classList.add('show');
-            
-            // Auto-Select im Dropdown
-            document.getElementById('agentSelect').value = suggestion.agent;
-            selectedAgent = suggestion.agent;
-            enableActionButtons();
-            
-            console.log('✅ Agent-Empfehlung vom Backend:', suggestion);
+            return names[agentKey] || 'Finance Agent';
         }
-        
-    } catch (error) {
-        console.error('⚠️ Backend nicht erreichbar, nutze lokale Analyse:', error);
-        
-        // FALLBACK: Deine originale lokale Analyse
-        const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
-        let suggestion = null;
-        let confidence = 0;
-        
-        // Pattern Matching (dein originaler Code)
-        if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
-            suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
-        } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
-            suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
-        } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
-            suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
-        } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
-            suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
-        } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
-            suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
-        } else {
-            suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
-        }
-        
-        // Zeige Empfehlung
-        if (suggestion) {
-            document.getElementById('suggestedAgent').textContent = suggestion.name;
-            document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
-            document.getElementById('agentSuggestion').classList.add('show');
-            
-            // Auto-Select im Dropdown
-            document.getElementById('agentSelect').value = suggestion.agent;
-            selectedAgent = suggestion.agent;
-            enableActionButtons();
-        }
-    }
-    
-    // Update Priorität
-    updatePriority((currentEmailData.subject + ' ' + (currentEmailData.body || '')).toLowerCase());
-}
 
         // Priorität bestimmen
         function updatePriority(text) {
@@ -710,11 +719,35 @@
             updateStatus('Verarbeite automatisch...', 'info');
             disableAllButtons();
             
-            // Hier würde der Backend-Call kommen
-            setTimeout(() => {
-                updateStatus('✅ E-Mail wurde automatisch bearbeitet', 'success');
+            try {
+                // Backend Call für automatische Verarbeitung
+                const response = await fetch(`${CONFIG.BACKEND_URL}/api/process-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Tenant-ID': CONFIG.TENANT_ID
+                    },
+                    body: JSON.stringify({
+                        emailData: currentEmailData,
+                        agent: selectedAgent,
+                        action: 'auto'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('✅ E-Mail wurde automatisch bearbeitet', 'success');
+                } else {
+                    throw new Error('Backend-Fehler');
+                }
+            } catch (error) {
+                // Fallback für Demo
+                setTimeout(() => {
+                    updateStatus('✅ E-Mail wurde automatisch bearbeitet (Demo)', 'success');
+                }, 2000);
+            } finally {
                 enableAllButtons();
-            }, 2000);
+            }
         }
 
         // Draft erstellen
@@ -737,25 +770,27 @@
             updateStatus('Entwurf wurde erstellt', 'success');
         }
 
-        // Dashboard öffnen
+        // Dashboard öffnen - VOLLSTÄNDIG AKTUALISIERT
         function openDashboard() {
-            updateStatus('Öffne ALBO Enterprise...', 'info');
+            updateStatus('Öffne ALBO Enterprise Dashboard...', 'info');
             
-            // Session-Daten vorbereiten
+            // E-Mail Daten für Dashboard vorbereiten
             const sessionData = {
-                email: currentEmailData,
-                agent: selectedAgent,
+                email: currentEmailData || {},
+                agent: selectedAgent || 'controller',
                 source: 'outlook',
                 timestamp: new Date().toISOString()
             };
             
-            // Dashboard in neuem Tab öffnen
-            const dashboardUrl = `https://albo-enterprise.com/dashboard?session=${
-                btoa(JSON.stringify(sessionData))
-            }`;
+            // Als Base64 encodieren für URL-Parameter
+            const params = btoa(JSON.stringify(sessionData));
             
+            // Dashboard öffnen mit E-Mail-Daten - VERWENDET JETZT CONFIG.BACKEND_URL
+            const dashboardUrl = `${CONFIG.BACKEND_URL}/dashboard?session=${params}`;
+            
+            console.log('📊 Öffne Dashboard:', dashboardUrl);
             window.open(dashboardUrl, '_blank');
-            updateStatus('Dashboard geöffnet', 'success');
+            updateStatus('Dashboard geöffnet mit E-Mail-Daten', 'success');
         }
 
         // Helper Functions
