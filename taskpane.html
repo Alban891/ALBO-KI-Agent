@@ -321,6 +321,21 @@
         .hidden {
             display: none !important;
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+}
+
+.email-analysis {
+    margin: 15px 0;
+}
     </style>
 </head>
 <body>
@@ -485,90 +500,120 @@
             });
         }
 
-        // KI Agent Empfehlung - AKTUALISIERT MIT HTTPS
-        async function suggestAgent() {
-            if (!currentEmailData) return;
-            
-            try {
-                // API Call zum Backend - JETZT MIT CONFIG.BACKEND_URL
-                const response = await fetch(`${CONFIG.BACKEND_URL}/api/suggest-agent`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Tenant-ID': CONFIG.TENANT_ID
-                    },
-                    body: JSON.stringify({
-                        subject: currentEmailData.subject || '',
-                        body: currentEmailData.body || '',
-                        from: currentEmailData.from || ''
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success && data.suggestion) {
-                    // Suggestion vom Backend verwenden
-                    const suggestion = {
-                        agent: data.suggestion.agent,
-                        name: getAgentDisplayName(data.suggestion.agent),
-                        confidence: data.suggestion.confidence
-                    };
-                    
-                    // UI Update
-                    document.getElementById('suggestedAgent').textContent = suggestion.name;
-                    document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
-                    document.getElementById('agentSuggestion').classList.add('show');
-                    
-                    // Auto-Select im Dropdown
-                    document.getElementById('agentSelect').value = suggestion.agent;
-                    selectedAgent = suggestion.agent;
-                    enableActionButtons();
-                    
-                    console.log('✅ Agent-Empfehlung vom Backend:', suggestion);
-                }
-                
-            } catch (error) {
-                console.error('⚠️ Backend nicht erreichbar, nutze lokale Analyse:', error);
-                
-                // FALLBACK: Lokale Analyse
-                const text = (currentEmailData.subject + ' ' + currentEmailData.body).toLowerCase();
-                let suggestion = null;
-                
-                // Pattern Matching
-                if (text.includes('rechnung') || text.includes('invoice') || text.includes('lieferant')) {
-                    suggestion = { agent: 'kreditor', name: 'Kreditorenbuchhalter', confidence: 90 };
-                } else if (text.includes('mahnung') || text.includes('zahlung') || text.includes('überfällig')) {
-                    suggestion = { agent: 'debitor', name: 'Debitorenbuchhalter', confidence: 85 };
-                } else if (text.includes('budget') || text.includes('forecast') || text.includes('kpi')) {
-                    suggestion = { agent: 'controller', name: 'Controller', confidence: 75 };
-                } else if (text.includes('strategie') || text.includes('board') || text.includes('investor')) {
-                    suggestion = { agent: 'cfo', name: 'CFO', confidence: 70 };
-                } else if (text.includes('liquidität') || text.includes('cash') || text.includes('währung')) {
-                    suggestion = { agent: 'treasury', name: 'Treasury Manager', confidence: 80 };
-                } else {
-                    suggestion = { agent: 'controller', name: 'Controller', confidence: 60 };
-                }
-                
-                // Zeige Empfehlung
-                if (suggestion) {
-                    document.getElementById('suggestedAgent').textContent = suggestion.name;
-                    document.getElementById('confidenceBar').style.width = suggestion.confidence + '%';
-                    document.getElementById('agentSuggestion').classList.add('show');
-                    
-                    // Auto-Select im Dropdown
-                    document.getElementById('agentSelect').value = suggestion.agent;
-                    selectedAgent = suggestion.agent;
-                    enableActionButtons();
-                }
+        // KI Agent Empfehlung - AKTUALISIERT MIT ECHTER KI
+async function suggestAgent() {
+    if (!currentEmailData) return;
+    
+    try {
+        // Zuerst versuchen wir die neue KI-API
+        const response = await fetch(`${CONFIG.BACKEND_URL}/api/analyze-ai`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Tenant-ID': CONFIG.TENANT_ID
+            },
+            body: JSON.stringify({
+                subject: currentEmailData.subject || '',
+                body: currentEmailData.body || '',
+                from: currentEmailData.from || '',
+                agent: 'controller' // Default agent
+            })
+        });
+
+        const data = await response.json();
+        console.log('✅ KI-Analyse erhalten:', data);
+        
+        // Zeige KI-Analyse in der UI
+        if (data.ai && data.analysis) {
+            // KI-Antwort anzeigen
+            const analysisDiv = document.querySelector('.email-analysis');
+            if (analysisDiv) {
+                analysisDiv.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #10b981, #059669); 
+                                color: white; padding: 15px; border-radius: 8px; margin: 10px 0;
+                                animation: fadeIn 0.5s;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <span style="font-size: 24px;">🤖</span>
+                            <div>
+                                <div style="font-size: 12px; opacity: 0.9;">KI-ANALYSE (GPT-3.5)</div>
+                                <div style="font-size: 10px; opacity: 0.8;">
+                                    ${data.usage?.tokens || 0} Tokens | ${data.usage?.cost || '$0.00'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="line-height: 1.5;">
+                            ${data.analysis}
+                        </div>
+                    </div>
+                `;
             }
             
-            // Update Priorität
-            updatePriority((currentEmailData.subject + ' ' + (currentEmailData.body || '')).toLowerCase());
+            // Agent-Empfehlung aus KI-Text extrahieren
+            const analysisText = data.analysis.toLowerCase();
+            if (analysisText.includes('kreditor') || analysisText.includes('rechnung')) {
+                selectedAgent = 'kreditor';
+            } else if (analysisText.includes('debitor') || analysisText.includes('mahnung')) {
+                selectedAgent = 'debitor';
+            } else if (analysisText.includes('treasury') || analysisText.includes('zahlung')) {
+                selectedAgent = 'treasury';
+            } else {
+                selectedAgent = 'controller';
+            }
+            
+        } else if (data.mock) {
+            // Fallback auf alte Logik
+            console.log('⚠️ Mock-Modus aktiv (KI nicht verfügbar)');
+            selectedAgent = suggestAgentFromPattern();
         }
+        
+        // UI aktualisieren
+        updateAgentUI(selectedAgent);
+        
+    } catch (error) {
+        console.error('❌ KI-Analyse Fehler:', error);
+        // Fallback auf Pattern-Matching
+        selectedAgent = suggestAgentFromPattern();
+        updateAgentUI(selectedAgent);
+    }
+}
+
+// Hilfsfunktion für Pattern-Matching (Fallback)
+function suggestAgentFromPattern() {
+    const text = `${currentEmailData.subject} ${currentEmailData.body || ''}`.toLowerCase();
+    
+    if (text.includes('rechnung') || text.includes('invoice')) {
+        return 'kreditor';
+    } else if (text.includes('mahnung') || text.includes('überfällig')) {
+        return 'debitor';
+    } else if (text.includes('budget') || text.includes('forecast')) {
+        return 'controller';
+    }
+    return 'controller';
+}
+
+// Hilfsfunktion für UI-Update
+function updateAgentUI(agent) {
+    // Setze den ausgewählten Agent
+    selectedAgent = agent;
+    
+    // Highlight den Agent-Button
+    document.querySelectorAll('.agent-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.agent === agent) {
+            btn.classList.add('selected');
+        }
+    });
+    
+    // Update Empfehlungs-Text
+    const recommendationDiv = document.querySelector('.agent-recommendation');
+    if (recommendationDiv) {
+        recommendationDiv.innerHTML = `
+            <span style="color: #10b981;">✓</span> 
+            Empfohlen: ${agent.toUpperCase()} 
+            <span style="font-size: 12px; opacity: 0.8;">(KI-basiert)</span>
+        `;
+    }
+}
 
         // Helper function für Agent Display Namen
         function getAgentDisplayName(agentKey) {
