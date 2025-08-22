@@ -506,7 +506,7 @@ async function suggestAgent() {
     
     try {
         // Zuerst versuchen wir die neue KI-API
-        const response = await fetch(`${CONFIG.BACKEND_URL}/api/analyze-ai`, {
+        const response = await fetch(`${CONFIG.BACKEND_URL}/api/analyze-api`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
