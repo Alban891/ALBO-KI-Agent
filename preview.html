@@ -149,6 +149,7 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: 600;
+            color: #323130;
         }
 
         /* AI Analysis */
@@ -158,6 +159,7 @@
             border-radius: 8px;
             padding: 16px;
             margin-top: 12px;
+            position: relative;
         }
 
         .confidence-meter {
@@ -184,12 +186,22 @@
             height: 100%;
             background: linear-gradient(90deg, #10b981, #059669);
             transition: width 0.5s ease;
-            width: 85%;
+            width: 0%;
         }
 
         .confidence-value {
             font-weight: 600;
             color: #10b981;
+        }
+
+        /* Model Info */
+        .model-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 8px;
+            text-align: right;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
         }
 
         /* Suggested Reply */
@@ -199,8 +211,9 @@
             border-radius: 8px;
             padding: 16px;
             margin-top: 12px;
-            font-style: italic;
+            font-style: normal;
             color: #323130;
+            white-space: pre-wrap;
         }
 
         /* Actions */
@@ -266,6 +279,49 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Error and Warning States */
+        .error-message {
+            color: #d13438;
+            padding: 12px;
+            background: #fde7e9;
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+
+        .warning-message {
+            color: #ff9800;
+            padding: 12px;
+            background: #fff4e5;
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+
+        /* Analysis List Styles */
+        #analysisDetails {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        #analysisDetails li {
+            margin-bottom: 6px;
+        }
+
+        /* Action Items */
+        .action-items-list {
+            background: #f0f8ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .action-items-list ol {
+            margin-left: 20px;
+        }
+
+        .action-items-list li {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -324,17 +380,18 @@
                     <div class="analysis-box">
                         <div id="analysisContent">
                             <p><strong>Zusammenfassung:</strong></p>
-                            <p id="analysisSummary">Die E-Mail enthält eine Zahlungserinnerung...</p>
+                            <p id="analysisSummary">Analysiere...</p>
                             
                             <p style="margin-top: 12px;"><strong>Erkannte Details:</strong></p>
-                            <ul id="analysisDetails" style="margin-left: 20px;">
-                                <li>Betrag: <span class="amount-highlight">15.750,00 EUR</span></li>
-                                <li>Fälligkeit: Überfällig (4 Tage)</li>
-                                <li>Rechnungsnummer: 2024-001</li>
+                            <ul id="analysisDetails">
+                                <li>Wird geladen...</li>
                             </ul>
                             
-                            <p style="margin-top: 12px;"><strong>Empfohlene Aktionen:</strong></p>
-                            <p id="analysisActions">Sofortige Zahlung veranlassen oder Zahlungsplan vereinbaren.</p>
+                            <div class="action-items-list" id="actionItemsContainer" style="display: none;">
+                                <p><strong>Empfohlene Aktionen:</strong></p>
+                                <ol id="actionItemsList"></ol>
+                                <p style="margin-top: 12px;"><strong>Nächste Schritte:</strong> <span id="nextSteps"></span></p>
+                            </div>
                         </div>
                         
                         <div class="confidence-meter">
@@ -342,8 +399,10 @@
                             <div class="confidence-bar">
                                 <div id="confidenceBar" class="confidence-fill"></div>
                             </div>
-                            <span id="confidenceValue" class="confidence-value">85%</span>
+                            <span id="confidenceValue" class="confidence-value">0%</span>
                         </div>
+                        
+                        <div id="modelInfo" class="model-info" style="display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -356,14 +415,7 @@
                 </div>
                 <div class="section-content">
                     <div class="reply-preview" id="suggestedReply">
-                        Sehr geehrte Damen und Herren,<br><br>
-                        vielen Dank für Ihre Zahlungserinnerung vom [Datum].<br><br>
-                        Wir haben die Rechnung Nr. 2024-001 über 15.750,00 EUR zur Kenntnis genommen.
-                        Die Zahlung wird umgehend durch unsere Finanzabteilung veranlasst.<br><br>
-                        Wir entschuldigen uns für die Verzögerung.<br><br>
-                        Mit freundlichen Grüßen<br>
-                        [Agent Name]<br>
-                        ALBO Finance Team
+                        Generiere Antwortvorschlag...
                     </div>
                 </div>
             </div>
@@ -404,18 +456,21 @@
                 emailData = data.email;
                 agentType = data.agent;
                 
+                console.log('Loaded email data:', emailData);
+                console.log('Agent type:', agentType);
+                
                 // Update UI
                 updateAgentBadge();
                 populateEmailDetails();
                 
-                // Simulate AI analysis
+                // Start AI analysis after short delay
                 setTimeout(() => {
                     performAIAnalysis();
-                }, 1500);
+                }, 500);
                 
             } catch (error) {
                 console.error('Error loading preview data:', error);
-                showError();
+                showError('Fehler beim Laden der E-Mail-Daten');
             }
         }
 
@@ -440,74 +495,189 @@
             document.getElementById('previewSubject').textContent = emailData.subject || '-';
             document.getElementById('previewFrom').textContent = emailData.from || '-';
             
-            // Determine priority
-            const text = (emailData.subject + ' ' + (emailData.body || '')).toLowerCase();
-            if (text.includes('mahnung') || text.includes('dringend') || text.includes('überfällig')) {
-                document.getElementById('previewPriority').innerHTML = '<span class="priority-high">Hoch</span>';
-            } else {
-                document.getElementById('previewPriority').textContent = 'Normal';
-            }
-            
-            // Determine category
-            if (text.includes('rechnung') || text.includes('invoice')) {
-                document.getElementById('previewCategory').textContent = 'Rechnung';
-            } else if (text.includes('mahnung')) {
-                document.getElementById('previewCategory').textContent = 'Mahnung';
-            } else {
-                document.getElementById('previewCategory').textContent = 'Geschäftskorrespondenz';
+            // Set temporary values - will be updated by AI
+            document.getElementById('previewPriority').textContent = 'Wird analysiert...';
+            document.getElementById('previewCategory').textContent = 'Wird analysiert...';
+        }
+
+        // HAUPTFUNKTION: Echte AI Analysis mit OpenAI
+        async function performAIAnalysis() {
+            try {
+                console.log('Starting real AI analysis...');
+                
+                // Update loading message
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <p>🤖 Verbinde mit OpenAI GPT-4...</p>
+                    <p style="font-size: 12px; color: #666; margin-top: 8px;">Analysiere E-Mail-Inhalt mit KI</p>
+                `;
+                
+                // Prepare request data
+                const requestData = {
+                    emailContent: {
+                        subject: emailData.subject || '',
+                        from: emailData.from || '',
+                        to: emailData.to || '',
+                        body: emailData.body || ''
+                    },
+                    agent: agentType || 'debitor'
+                };
+                
+                console.log('Sending to API:', requestData);
+                
+                // REAL API CALL to OpenAI Backend
+                const response = await fetch('https://albo-saa-s-backend.vercel.app/api/analyze-api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('API Response Status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('AI Analysis Result:', result);
+                
+                // Check if real AI data or mock
+                if (result.source === 'mock') {
+                    console.warn('Received mock data - OpenAI key might be missing');
+                    document.getElementById('loadingState').innerHTML = `
+                        <div class="warning-message">
+                            ⚠️ Mock-Modus aktiv<br>
+                            <small>${result.analysis.summary}</small>
+                        </div>
+                    `;
+                    setTimeout(() => displayAIResults(result), 1500);
+                } else if (result.success && result.analysis) {
+                    // Display REAL AI results
+                    displayAIResults(result);
+                } else {
+                    throw new Error(result.error || 'Unbekannter Fehler');
+                }
+                
+            } catch (error) {
+                console.error('AI Analysis Error:', error);
+                
+                // Show error and fall back to simulated analysis
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="error-message">
+                        ⚠️ API-Fehler: ${error.message}<br>
+                        <small>Verwende Fallback-Analyse...</small>
+                    </div>
+                `;
+                
+                // After 2 seconds, fallback to simulated analysis
+                setTimeout(() => {
+                    performSimulatedAnalysis();
+                }, 2000);
             }
         }
 
-        // Perform AI Analysis (simulated)
-        function performAIAnalysis() {
-            // Generate analysis based on email content
-            const text = (emailData.subject + ' ' + (emailData.body || '')).toLowerCase();
+        // Display real AI results
+        function displayAIResults(result) {
+            console.log('Displaying AI results...');
             
-            // Extract amounts
-            const amountMatch = text.match(/(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*eur/i);
-            const amount = amountMatch ? amountMatch[1] : '0,00';
+            const analysis = result.analysis;
             
-            // Update analysis content
-            if (text.includes('mahnung')) {
-                document.getElementById('analysisSummary').textContent = 
-                    'Die E-Mail enthält eine Zahlungserinnerung für eine überfällige Rechnung. Sofortiges Handeln ist erforderlich.';
-                
-                document.getElementById('analysisDetails').innerHTML = `
-                    <li>Betrag: <span class="amount-highlight">${amount} EUR</span></li>
-                    <li>Status: <span class="priority-high">Überfällig</span></li>
-                    <li>Empfänger: ${emailData.from}</li>
-                `;
-                
-                document.getElementById('analysisActions').textContent = 
-                    'Sofortige Zahlung veranlassen oder Kontakt zur Klärung aufnehmen.';
-                
-                // High confidence for clear cases
-                updateConfidence(92);
-                
-            } else if (text.includes('rechnung')) {
-                document.getElementById('analysisSummary').textContent = 
-                    'Neue Rechnung zur Bearbeitung eingegangen.';
-                
-                document.getElementById('analysisDetails').innerHTML = `
-                    <li>Betrag: <span class="amount-highlight">${amount} EUR</span></li>
-                    <li>Status: Neu</li>
-                    <li>Absender: ${emailData.from}</li>
-                `;
-                
-                document.getElementById('analysisActions').textContent = 
-                    'Rechnung prüfen und zur Zahlung freigeben.';
-                
-                updateConfidence(85);
-            } else {
-                // Default analysis
-                document.getElementById('analysisSummary').textContent = 
-                    'Geschäftliche E-Mail zur weiteren Bearbeitung.';
-                
-                updateConfidence(70);
+            // Update Summary
+            document.getElementById('analysisSummary').textContent = 
+                analysis.summary || 'Keine Zusammenfassung verfügbar';
+            
+            // Update Details
+            let detailsHtml = '';
+            
+            // Show extracted details
+            if (analysis.extractedDetails) {
+                const details = analysis.extractedDetails;
+                if (details.invoiceNumber) {
+                    detailsHtml += `<li><strong>Rechnungsnummer:</strong> ${details.invoiceNumber}</li>`;
+                }
+                if (details.amount) {
+                    detailsHtml += `<li><strong>Betrag:</strong> <span class="amount-highlight">${details.amount}</span></li>`;
+                }
+                if (details.status) {
+                    const statusClass = details.status.toLowerCase().includes('überfällig') ? 'priority-high' : '';
+                    detailsHtml += `<li><strong>Status:</strong> <span class="${statusClass}">${details.status}</span></li>`;
+                }
+                if (details.dueDate) {
+                    detailsHtml += `<li><strong>Fälligkeit:</strong> ${details.dueDate}</li>`;
+                }
             }
             
-            // Generate suggested reply
-            generateSuggestedReply(text, amount);
+            // Add categories
+            if (analysis.categories && analysis.categories.length > 0) {
+                detailsHtml += `<li><strong>Kategorien:</strong> ${analysis.categories.join(', ')}</li>`;
+            }
+            
+            // Priority
+            if (analysis.priority) {
+                const prioClass = analysis.priority === 'Hoch' ? 'priority-high' : '';
+                detailsHtml += `<li><strong>Priorität:</strong> <span class="${prioClass}">${analysis.priority}</span></li>`;
+            }
+            
+            // Time estimate
+            if (analysis.estimatedTime) {
+                detailsHtml += `<li><strong>Geschätzter Aufwand:</strong> ${analysis.estimatedTime}</li>`;
+            }
+            
+            // SAP relevance
+            if (result.recommendations?.sapRelevant) {
+                detailsHtml += `<li><strong>SAP-Buchung:</strong> <span style="color: #0078d4; font-weight: bold;">Erforderlich</span></li>`;
+            }
+            
+            document.getElementById('analysisDetails').innerHTML = detailsHtml || '<li>Keine Details extrahiert</li>';
+            
+            // Update Action Items
+            if (analysis.actionItems && analysis.actionItems.length > 0) {
+                document.getElementById('actionItemsContainer').style.display = 'block';
+                let actionItemsHtml = '';
+                analysis.actionItems.forEach(item => {
+                    actionItemsHtml += `<li>${item}</li>`;
+                });
+                document.getElementById('actionItemsList').innerHTML = actionItemsHtml;
+                
+                if (analysis.nextSteps) {
+                    document.getElementById('nextSteps').textContent = analysis.nextSteps;
+                }
+            }
+            
+            // Update Priority in Email Details
+            document.getElementById('previewPriority').innerHTML = 
+                analysis.priority === 'Hoch' 
+                    ? '<span class="priority-high">Hoch</span>' 
+                    : analysis.priority || 'Normal';
+            
+            // Update Category
+            if (analysis.categories && analysis.categories.length > 0) {
+                document.getElementById('previewCategory').textContent = analysis.categories[0];
+            }
+            
+            // Update Confidence based on real data
+            let confidence = 85; // Default
+            if (result.metadata?.tokensUsed) {
+                // More tokens = better analysis
+                confidence = Math.min(95, 70 + (result.metadata.tokensUsed / 20));
+            }
+            updateConfidence(Math.round(confidence));
+            
+            // Show Model Info
+            if (result.metadata?.model) {
+                const modelInfoDiv = document.getElementById('modelInfo');
+                modelInfoDiv.style.display = 'block';
+                modelInfoDiv.innerHTML = `
+                    <span>🤖 ${result.metadata.model}</span> | 
+                    <span>📊 ${result.metadata.tokensUsed || 0} Tokens</span> | 
+                    <span>⚡ ${result.source === 'openai' ? 'Live AI' : 'Mock'}</span>
+                `;
+            }
+            
+            // Generate AI-based suggested reply
+            generateAIReply(analysis, result.recommendations);
             
             // Show content
             document.getElementById('loadingState').style.display = 'none';
@@ -515,36 +685,103 @@
             document.getElementById('previewActions').style.display = 'flex';
         }
 
-        // Generate suggested reply
-        function generateSuggestedReply(text, amount) {
-            let reply = '';
+        // Generate AI-based reply
+        function generateAIReply(analysis, recommendations) {
+            let reply = 'Sehr geehrte Damen und Herren,\n\n';
             
-            if (text.includes('mahnung')) {
-                reply = `Sehr geehrte Damen und Herren,<br><br>
-                    vielen Dank für Ihre Zahlungserinnerung.<br><br>
-                    Wir haben den offenen Betrag von ${amount} EUR zur Kenntnis genommen 
-                    und werden die Zahlung umgehend veranlassen.<br><br>
-                    Wir entschuldigen uns für die entstandenen Unannehmlichkeiten.<br><br>
-                    Mit freundlichen Grüßen<br>
-                    ${getAgentTitle()}<br>
-                    ALBO Finance Team`;
-            } else if (text.includes('rechnung')) {
-                reply = `Sehr geehrte Damen und Herren,<br><br>
-                    wir bestätigen den Erhalt Ihrer Rechnung über ${amount} EUR.<br><br>
-                    Die Rechnung wird geprüft und nach Freigabe zur Zahlung angewiesen.<br><br>
-                    Mit freundlichen Grüßen<br>
-                    ${getAgentTitle()}<br>
-                    ALBO Finance Team`;
-            } else {
-                reply = `Sehr geehrte Damen und Herren,<br><br>
-                    vielen Dank für Ihre Nachricht.<br><br>
-                    Ihr Anliegen wurde an unseren ${getAgentTitle()} weitergeleitet 
-                    und wird zeitnah bearbeitet.<br><br>
-                    Mit freundlichen Grüßen<br>
-                    ALBO Finance Team`;
+            reply += 'vielen Dank für Ihre Nachricht.\n\n';
+            
+            // Based on extracted details
+            if (analysis.extractedDetails?.invoiceNumber) {
+                reply += `Bezüglich Ihrer Anfrage zur Rechnung ${analysis.extractedDetails.invoiceNumber}`;
+                if (analysis.extractedDetails?.amount) {
+                    reply += ` über ${analysis.extractedDetails.amount}`;
+                }
+                reply += ' möchte ich Ihnen folgendes mitteilen:\n\n';
             }
             
-            document.getElementById('suggestedReply').innerHTML = reply;
+            // Based on priority and status
+            if (analysis.priority === 'Hoch' && analysis.extractedDetails?.status?.toLowerCase().includes('überfällig')) {
+                reply += 'Wir haben Ihre Zahlungserinnerung erhalten und werden den Sachverhalt umgehend prüfen. ';
+                reply += 'Sollte die Zahlung bereits erfolgt sein, bitten wir um einen kurzen Nachweis.\n\n';
+            } else if (analysis.nextSteps) {
+                reply += `${analysis.nextSteps}\n\n`;
+            }
+            
+            // Action Items as next steps
+            if (analysis.actionItems && analysis.actionItems.length > 0) {
+                reply += 'Wir werden folgende Schritte einleiten:\n';
+                analysis.actionItems.forEach((item, index) => {
+                    reply += `${index + 1}. ${item}\n`;
+                });
+                reply += '\n';
+            }
+            
+            // SAP note if relevant
+            if (recommendations?.sapRelevant) {
+                reply += 'Die Buchung wird nach Prüfung in unserem SAP-System erfasst.\n\n';
+            }
+            
+            reply += 'Für Rückfragen stehe ich Ihnen gerne zur Verfügung.\n\n';
+            reply += 'Mit freundlichen Grüßen\n';
+            reply += `${getAgentTitle()}\n`;
+            reply += 'ALBO Finance Team';
+            
+            document.getElementById('suggestedReply').textContent = reply;
+        }
+
+        // Fallback: Simulated analysis (if API doesn't work)
+        function performSimulatedAnalysis() {
+            console.log('Performing simulated analysis as fallback...');
+            
+            const text = (emailData.subject + ' ' + (emailData.body || '')).toLowerCase();
+            
+            // Extract amounts
+            const amountMatch = text.match(/(\d{1,3}(?:\.\d{3})*(?:,\d{2})?)\s*eur/i);
+            const amount = amountMatch ? amountMatch[1] : '0,00';
+            
+            // Update analysis content
+            if (text.includes('mahnung') || text.includes('rechnung')) {
+                document.getElementById('analysisSummary').textContent = 
+                    '⚠️ SIMULIERT: Die E-Mail enthält eine Anfrage zu einer Rechnung.';
+                
+                document.getElementById('analysisDetails').innerHTML = `
+                    <li><strong>Modus:</strong> <span style="color: #ff9800;">Simulierte Analyse</span></li>
+                    <li><strong>Betrag:</strong> <span class="amount-highlight">${amount} EUR</span></li>
+                    <li><strong>Status:</strong> Zur Prüfung</li>
+                    <li><strong>Absender:</strong> ${emailData.from}</li>
+                `;
+                
+                updateConfidence(65);
+            } else {
+                document.getElementById('analysisSummary').textContent = 
+                    '⚠️ SIMULIERT: Geschäftliche E-Mail zur weiteren Bearbeitung.';
+                updateConfidence(50);
+            }
+            
+            // Update priority and category
+            document.getElementById('previewPriority').textContent = 'Normal';
+            document.getElementById('previewCategory').textContent = 'Geschäftskorrespondenz';
+            
+            // Generate simple reply
+            generateSimpleReply(text, amount);
+            
+            // Show content
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('previewContent').style.display = 'block';
+            document.getElementById('previewActions').style.display = 'flex';
+        }
+
+        // Generate simple reply for simulated mode
+        function generateSimpleReply(text, amount) {
+            let reply = 'Sehr geehrte Damen und Herren,\n\n';
+            reply += 'vielen Dank für Ihre Nachricht.\n\n';
+            reply += 'Ihr Anliegen wird umgehend bearbeitet.\n\n';
+            reply += 'Mit freundlichen Grüßen\n';
+            reply += `${getAgentTitle()}\n`;
+            reply += 'ALBO Finance Team';
+            
+            document.getElementById('suggestedReply').textContent = reply;
         }
 
         // Get agent title
@@ -560,7 +797,7 @@
             return titles[agentType] || 'Finance Specialist';
         }
 
-        // Update confidence
+        // Update confidence meter
         function updateConfidence(value) {
             document.getElementById('confidenceBar').style.width = value + '%';
             document.getElementById('confidenceValue').textContent = value + '%';
@@ -575,9 +812,12 @@
                     data: {
                         email: emailData,
                         agent: agentType,
-                        reply: document.getElementById('suggestedReply').innerHTML
+                        reply: document.getElementById('suggestedReply').textContent
                     }
                 }));
+            } else {
+                console.log('Action executed:', action);
+                alert(`Aktion "${action}" wurde ausgeführt!`);
             }
         }
 
@@ -591,9 +831,11 @@
         }
 
         // Show error
-        function showError() {
+        function showError(message) {
             document.getElementById('loadingState').innerHTML = `
-                <p style="color: #d13438;">❌ Fehler beim Laden der Vorschau</p>
+                <div class="error-message">
+                    ❌ ${message}
+                </div>
             `;
         }
     </script>
